@@ -1,5 +1,5 @@
 import { type App, Plugin, type PluginManifest } from "obsidian";
-import * as Log from "./utils";
+import * as Log from "./utils/logger";
 import * as Settings from "./settings";
 
 export default class SchemaFormPlugin extends Plugin {
