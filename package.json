@@ -19,6 +19,7 @@
   "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.2.3",
+    "@types/bun": "latest",
     "@types/js-yaml": "^4.0.9",
     "@types/node": "^20.11.0",
     "builtin-modules": "3.3.0",

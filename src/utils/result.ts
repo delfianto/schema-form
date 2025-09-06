@@ -64,6 +64,11 @@ export class ResultHelpers {
     if (ResultHelpers.isOk(result)) {
       return result.data;
     }
+
+    if (result.details) {
+      throw result.details;
+    }
+
     throw new Error(result.message);
   }
 }
