@@ -1,6 +1,6 @@
 import { type App, Plugin, type PluginManifest } from "obsidian";
-import * as Log from "./utils/logger";
 import * as Settings from "./settings";
+import * as Log from "./utils/logger";
 
 export default class SchemaFormPlugin extends Plugin {
   settings!: Settings.SchemaFormSettings;
@@ -21,7 +21,7 @@ export default class SchemaFormPlugin extends Plugin {
 
     // Initialize logger with current settings
     Log.initialize(this.settings);
-    Log.debug("Settings loaded: ", this.settings)
+    Log.debug("Settings loaded: ", this.settings);
 
     // Add the plugin settings tab to Obsidian's UI
     this.addSettingTab(new Settings.SchemaFormSettingTab(this));

@@ -75,11 +75,11 @@ export class FormState {
   private notifyFieldListeners(fieldName: string, value: any): void {
     const listeners = this.changeListeners.get(fieldName);
     if (listeners) {
-      listeners.forEach(listener => listener(value));
+      listeners.forEach((listener) => listener(value));
     }
   }
 
   private notifyValidationListeners(): void {
-    this.validationListeners.forEach(listener => listener());
+    this.validationListeners.forEach((listener) => listener());
   }
 }

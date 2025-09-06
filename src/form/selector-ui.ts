@@ -1,15 +1,11 @@
-import { App, Modal, Setting, TFile } from "obsidian";
+import { type App, Modal, Setting, type TFile } from "obsidian";
 
 export class FileSelectorModal extends Modal {
   files: TFile[];
   onChoose: (file: TFile | null) => void;
   private resolved = false;
 
-  constructor(
-    app: App,
-    files: TFile[],
-    onChoose: (file: TFile | null) => void,
-  ) {
+  constructor(app: App, files: TFile[], onChoose: (file: TFile | null) => void) {
     super(app);
     this.files = files;
     this.onChoose = onChoose;
@@ -25,8 +21,8 @@ export class FileSelectorModal extends Modal {
         .setDesc(file.path)
         .addButton((btn) =>
           btn.setButtonText("Select").onClick(() => {
-            this.resolve(file)
-          }),
+            this.resolve(file);
+          })
         );
     });
 
@@ -34,7 +30,7 @@ export class FileSelectorModal extends Modal {
     new Setting(contentEl).addButton((btn) =>
       btn.setButtonText("Cancel").onClick(() => {
         this.resolve();
-      }),
+      })
     );
   }
 

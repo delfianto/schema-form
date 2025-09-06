@@ -93,9 +93,7 @@ export class FormRenderer {
   }
 
   private renderTextField(container: HTMLElement, field: TextField): void {
-    const setting = new Setting(container)
-      .setName(this.label(field))
-      .setDesc(this.desc(field));
+    const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addText((text) => {
       text
@@ -107,13 +105,8 @@ export class FormRenderer {
     });
   }
 
-  private renderTextAreaField(
-    container: HTMLElement,
-    field: TextAreaField,
-  ): void {
-    const setting = new Setting(container)
-      .setName(this.label(field))
-      .setDesc(this.desc(field));
+  private renderTextAreaField(container: HTMLElement, field: TextAreaField): void {
+    const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addTextArea((textarea) => {
       textarea
@@ -126,15 +119,11 @@ export class FormRenderer {
   }
 
   private renderNumberField(container: HTMLElement, field: NumberField): void {
-    const setting = new Setting(container)
-      .setName(this.label(field))
-      .setDesc(this.desc(field));
+    const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addText((text) => {
       text.inputEl.type = "number";
-      text
-        .setPlaceholder(this.placeholder(field))
-        .setValue(this.stateValue(field));
+      text.setPlaceholder(this.placeholder(field)).setValue(this.stateValue(field));
 
       if (field.min !== undefined) {
         text.inputEl.min = String(field.min);
@@ -151,14 +140,11 @@ export class FormRenderer {
   }
 
   private renderToggleField(container: HTMLElement, field: ToggleField): void {
-    const setting = new Setting(container)
-      .setName(this.label(field))
-      .setDesc(this.desc(field));
+    const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addToggle((toggle) => {
       // Get current value or default
-      const currentValue =
-        this.state.getValue(field.name) ?? field.default ?? false;
+      const currentValue = this.state.getValue(field.name) ?? field.default ?? false;
 
       toggle.setValue(currentValue).onChange((value) => {
         this.state.setValue(field.name, value);
@@ -172,9 +158,7 @@ export class FormRenderer {
   }
 
   private renderSelectField(container: HTMLElement, field: SelectField): void {
-    const setting = new Setting(container)
-      .setName(this.label(field))
-      .setDesc(this.desc(field));
+    const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addDropdown((dropdown) => {
       if (field.options && Array.isArray(field.options)) {
@@ -182,8 +166,7 @@ export class FormRenderer {
           dropdown.addOption(String(option), String(option));
         });
 
-        const currentValue =
-          this.state.getValue(field.name) || field.options[0];
+        const currentValue = this.state.getValue(field.name) || field.options[0];
         dropdown.setValue(currentValue);
 
         if (!this.state.getValue(field.name)) {
@@ -198,9 +181,7 @@ export class FormRenderer {
   }
 
   private renderDateField(container: HTMLElement, field: DateField): void {
-    const setting = new Setting(container)
-      .setName(this.label(field))
-      .setDesc(this.desc(field));
+    const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addText((text) => {
       // Set input type to date
@@ -228,11 +209,7 @@ export class FormRenderer {
     });
   }
 
-  private renderErrorField(
-    container: HTMLElement,
-    field: Field,
-    error: any,
-  ): void {
+  private renderErrorField(container: HTMLElement, field: Field, error: any): void {
     container.createEl("div", {
       text: `Error rendering field "${field.name}": ${error.message}`,
       cls: "schema-form-error",
@@ -240,9 +217,7 @@ export class FormRenderer {
   }
 
   private renderUnknownField(container: HTMLElement, field: Field): void {
-    new Setting(container)
-      .setName(this.label(field))
-      .setDesc(`Unknown field type: ${field.type}`);
+    new Setting(container).setName(this.label(field)).setDesc(`Unknown field type: ${field.type}`);
   }
 
   private setupDefaults(schema: Schema): void {
@@ -254,5 +229,4 @@ export class FormRenderer {
     });
     this.state.setDefaults(defaults);
   }
-
 }

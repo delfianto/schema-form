@@ -7,9 +7,7 @@ import { ResultHelpers } from "../utils/result";
  * Show a basic test error modal with simple stack trace
  */
 const showBasicErrorModal = (app: App): void => {
-  const enhancedError = new Error(
-    "Schema validation failed: Invalid property 'test_field'",
-  );
+  const enhancedError = new Error("Schema validation failed: Invalid property 'test_field'");
   enhancedError.stack = `Error: Schema validation failed: Invalid property 'test_field'
   at parseSchema (file:///your-plugin/loader.ts:25:15)
   at loadSchema (file:///your-plugin/loader.ts:45:23)
@@ -21,7 +19,7 @@ const showBasicErrorModal = (app: App): void => {
   const testError = ResultHelpers.err(
     LoaderErrType.YAML_PARSE_ERROR,
     "Test error: Failed to parse schema file",
-    enhancedError,
+    enhancedError
   );
 
   const modal = new SchemaErrorModal(app, "test-schema.md", testError);
@@ -32,9 +30,7 @@ const showBasicErrorModal = (app: App): void => {
  * Show a realistic JSON parse error modal
  */
 const showParseErrorModal = (app: App): void => {
-  const parseError = new SyntaxError(
-    "Unexpected token '}' in JSON at position 156",
-  );
+  const parseError = new SyntaxError("Unexpected token '}' in JSON at position 156");
   parseError.stack = `SyntaxError: Unexpected token '}' in JSON at position 156
   at JSON.parse (<anonymous>)
   at parseSchema (file:///your-plugin/loader.ts:15:18)
@@ -45,7 +41,7 @@ const showParseErrorModal = (app: App): void => {
   const testError = ResultHelpers.err(
     LoaderErrType.YAML_PARSE_ERROR,
     "JSON parsing failed: Invalid syntax in schema file",
-    parseError,
+    parseError
   );
 
   const modal = new SchemaErrorModal(app, "broken-schema.md", testError);
@@ -74,14 +70,10 @@ const showComplexErrorModal = (app: App): void => {
   const testError = ResultHelpers.err(
     LoaderErrType.INVALID_SCHEMA_FORMAT,
     "Complex error: Schema contains unresolvable references",
-    wrapperError,
+    wrapperError
   );
 
-  const modal = new SchemaErrorModal(
-    app,
-    "complex-schema-with-refs.md",
-    testError,
-  );
+  const modal = new SchemaErrorModal(app, "complex-schema-with-refs.md", testError);
   modal.open();
 };
 
@@ -89,9 +81,7 @@ const showComplexErrorModal = (app: App): void => {
  * Show a YAML parsing error
  */
 const showYamlErrorModal = (app: App): void => {
-  const yamlError = new Error(
-    "Invalid YAML: Unexpected character at line 5, column 12",
-  );
+  const yamlError = new Error("Invalid YAML: Unexpected character at line 5, column 12");
   yamlError.stack = `Error: Invalid YAML: Unexpected character at line 5, column 12
   at yaml.load (file:///node_modules/js-yaml/lib/loader.js:167:13)
   at parseSchema (file:///your-plugin/loader.ts:18:20)
@@ -101,7 +91,7 @@ const showYamlErrorModal = (app: App): void => {
   const testError = ResultHelpers.err(
     LoaderErrType.YAML_PARSE_ERROR,
     "YAML parsing failed: Invalid syntax in schema file",
-    yamlError,
+    yamlError
   );
 
   const modal = new SchemaErrorModal(app, "invalid-yaml-schema.md", testError);

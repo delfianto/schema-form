@@ -1,15 +1,8 @@
-import {
-  App,
-  PluginSettingTab,
-  Setting,
-  SuggestModal,
-  TFolder,
-} from "obsidian";
-
-import SchemaFormPlugin from "../main";
+import { type App, PluginSettingTab, Setting, SuggestModal, TFolder } from "obsidian";
 import { FormHandler } from "../form";
-import { debugModals } from "./debug-ui";
+import type SchemaFormPlugin from "../main";
 import { getPluginClass, SCHEMA_FORM_STYLE } from "../utils/style";
+import { debugModals } from "./debug-ui";
 
 export class SchemaFormSettingTab extends PluginSettingTab {
   plugin: SchemaFormPlugin;
@@ -35,12 +28,10 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       .setName("Debug Mode")
       .setDesc("Enable debug mode for troubleshooting")
       .addToggle((toggle) =>
-        toggle
-          .setValue(this.plugin.settings.debugFlag)
-          .onChange(async (value) => {
-            this.plugin.settings.debugFlag = value;
-            await this.plugin.saveSettings();
-          }),
+        toggle.setValue(this.plugin.settings.debugFlag).onChange(async (value) => {
+          this.plugin.settings.debugFlag = value;
+          await this.plugin.saveSettings();
+        })
       );
   }
 
@@ -60,7 +51,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
           .setWarning()
           .onClick(() => {
             debugModals.basicError(this.app);
-          }),
+          })
       );
 
     new Setting(container)
@@ -69,7 +60,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       .addButton((button) =>
         button.setButtonText("Test JSON Parse Error").onClick(() => {
           debugModals.parseError(this.app);
-        }),
+        })
       );
 
     new Setting(container)
@@ -78,20 +69,18 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       .addButton((button) =>
         button.setButtonText("Test Complex Error").onClick(() => {
           debugModals.complexError(this.app);
-        }),
+        })
       );
 
     new Setting(container)
       .setName("Test Schema Directory")
       .setDesc("Test loading schemas from the configured directory")
       .addButton((button) =>
-        button
-          .setButtonText("Test Schema Loading")
-          .onClick(async () => {
-            const formHandler = new FormHandler(this.app, this.plugin.settings.schemaDir);
-            const formData = await formHandler.showForm();
-            console.log("Form result:", formData);
-          }),
+        button.setButtonText("Test Schema Loading").onClick(async () => {
+          const formHandler = new FormHandler(this.app, this.plugin.settings.schemaDir);
+          const formData = await formHandler.showForm();
+          console.log("Form result:", formData);
+        })
       );
   }
 
@@ -120,7 +109,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
           .setTooltip("Select folder")
           .onClick(() => {
             this.openFolderPicker();
-          }),
+          })
       );
 
     if (!this.plugin.settings.schemaDir) {
@@ -137,16 +126,14 @@ export class SchemaFormSettingTab extends PluginSettingTab {
     });
 
     // Validate folder exists
-    const folder = this.app.vault.getAbstractFileByPath(
-      this.plugin.settings.schemaDir,
-    );
+    const folder = this.app.vault.getAbstractFileByPath(this.plugin.settings.schemaDir);
 
     if (folder && folder instanceof TFolder) {
       folderInfo.createEl("div", {
         text: "✓ Folder exists",
         cls: getPluginClass(
           SCHEMA_FORM_STYLE.SETTINGS_ITEM_DESC,
-          SCHEMA_FORM_STYLE.SCHEMA_DIR_SUCCESS,
+          SCHEMA_FORM_STYLE.SCHEMA_DIR_SUCCESS
         ),
       });
     } else {
@@ -154,7 +141,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
         text: "⚠ Folder not found",
         cls: getPluginClass(
           SCHEMA_FORM_STYLE.SETTINGS_ITEM_DESC,
-          SCHEMA_FORM_STYLE.SCHEMA_DIR_ERROR,
+          SCHEMA_FORM_STYLE.SCHEMA_DIR_ERROR
         ),
       });
     }
@@ -172,9 +159,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       }
 
       getSuggestions(query: string): TFolder[] {
-        return folders.filter((folder) =>
-          folder.path.toLowerCase().includes(query.toLowerCase()),
-        );
+        return folders.filter((folder) => folder.path.toLowerCase().includes(query.toLowerCase()));
       }
 
       renderSuggestion(folder: TFolder, el: HTMLElement) {

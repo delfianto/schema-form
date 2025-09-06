@@ -1,6 +1,6 @@
-import { App, Modal, Setting } from "obsidian";
-import { LoaderErrType } from "../schema";
-import { Err } from "../utils/result";
+import { type App, Modal, Setting } from "obsidian";
+import type { LoaderErrType } from "../schema";
+import type { Err } from "../utils/result";
 import { SCHEMA_FORM_STYLE } from "../utils/style";
 
 export class SchemaErrorModal extends Modal {
@@ -48,7 +48,7 @@ export class SchemaErrorModal extends Modal {
       btn
         .setButtonText("OK")
         .setCta()
-        .onClick(() => this.close()),
+        .onClick(() => this.close())
     );
   }
 
@@ -84,5 +84,4 @@ export class SchemaErrorModal extends Modal {
 
     return errorInfo;
   }
-
 }

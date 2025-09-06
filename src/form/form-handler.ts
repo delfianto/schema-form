@@ -1,8 +1,8 @@
-import { App, Notice, TFile } from "obsidian";
-import { FileSelectorModal } from "./selector-ui";
+import { type App, Notice, type TFile } from "obsidian";
+import { listFiles, loadSchema, type Schema } from "../schema";
 import { ResultHelpers } from "../utils/result";
-import { SchemaFormModal  } from "./schema-ui";
-import { listFiles, loadSchema, Schema } from "../schema";
+import { SchemaFormModal } from "./schema-ui";
+import { FileSelectorModal } from "./selector-ui";
 
 export class FormHandler {
   private app: App;
@@ -16,7 +16,7 @@ export class FormHandler {
   async showForm() {
     try {
       const schemaFiles = ResultHelpers.unwrapOrThrow(
-        await listFiles(this.app, this.schemaDir),
+        await listFiles(this.app, this.schemaDir)
       ).files;
 
       const selectedFile = await this.displaySelector(schemaFiles);
@@ -26,9 +26,7 @@ export class FormHandler {
         return null;
       }
 
-      const schema = ResultHelpers.unwrapOrThrow(
-        await loadSchema(this.app, selectedFile),
-      ).schema;
+      const schema = ResultHelpers.unwrapOrThrow(await loadSchema(this.app, selectedFile)).schema;
 
       if (!schema) {
         new Notice("Failed to load schema");
@@ -62,5 +60,4 @@ export class FormHandler {
       }).open();
     });
   }
-
 }

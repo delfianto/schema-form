@@ -1,8 +1,8 @@
 import * as yaml from "js-yaml";
-import { App, TFile, TFolder } from "obsidian";
-import { FileResult, LoaderErr, LoaderErrType, LoaderResult } from "./types";
+import { type App, TFile, TFolder } from "obsidian";
 import { ResultHelpers } from "../utils/result";
-import { Schema } from "./schema";
+import type { Schema } from "./schema";
+import { type FileResult, LoaderErr, LoaderErrType, type LoaderResult } from "./types";
 
 function parseSchema(lang: string, code: string): Schema {
   let parsed: unknown;
