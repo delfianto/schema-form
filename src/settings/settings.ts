@@ -1,19 +1,19 @@
-import { Plugin } from "obsidian";
+import type { Plugin } from "obsidian";
 
 export interface SchemaFormSettings {
-	schemaDir: string;
-	debugFlag: boolean;
+  schemaDir: string;
+  debugFlag: boolean;
 }
 
 export const DEFAULT_SETTINGS: SchemaFormSettings = {
-	schemaDir: "",
-	debugFlag: false,
+  schemaDir: "",
+  debugFlag: false,
 };
 
 export async function loadSettings(plugin: Plugin): Promise<SchemaFormSettings> {
-	return Object.assign({}, DEFAULT_SETTINGS, await plugin.loadData());
+  return Object.assign({}, DEFAULT_SETTINGS, await plugin.loadData());
 }
 
 export async function saveSettings(plugin: Plugin, settings: SchemaFormSettings) {
-	await plugin.saveData(settings);
+  await plugin.saveData(settings);
 }

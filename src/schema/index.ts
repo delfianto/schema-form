@@ -1,4 +1,4 @@
 export * from "./loader";
-export * from "./schema";
 export * from "./path";
+export * from "./schema";
 export * from "./types";

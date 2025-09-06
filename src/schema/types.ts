@@ -1,6 +1,6 @@
-import { TFile } from "obsidian";
-import { Result } from "../utils/result";
-import { Schema } from "./schema";
+import type { TFile } from "obsidian";
+import type { Result } from "../utils/result";
+import type { Schema } from "./schema";
 
 export const LoaderErrType = {
   FILE_NOT_FOUND: "FILE_NOT_FOUND",

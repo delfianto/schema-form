@@ -1,8 +1,8 @@
 import * as yaml from "js-yaml";
-import { App, TFile } from "obsidian";
-import { LoaderErr, LoaderErrType, LoaderResult } from "./types";
+import type { App, TFile } from "obsidian";
 import { ResultHelpers } from "../utils/result";
-import { Schema } from "./schema";
+import type { Schema } from "./schema";
+import { LoaderErr, LoaderErrType, type LoaderResult } from "./types";
 
 function parseSchema(lang: string, code: string): Schema {
   let parsed: unknown;
@@ -26,11 +26,7 @@ function readCodeBlock(content: string): { lang: string; code: string } | null {
 }
 
 function loaderError(errType: LoaderErrType, errDetails?: Error) {
-  return ResultHelpers.err(
-    errType,
-    LoaderErr.getMessage(errType),
-    errDetails
-  );
+  return ResultHelpers.err(errType, LoaderErr.getMessage(errType), errDetails);
 }
 
 export async function loadSchema(app: App, file: TFile): Promise<LoaderResult> {
