@@ -7,6 +7,7 @@ import {
 } from "obsidian";
 
 import SchemaFormPlugin from "../main";
+import { getPluginClass, SCHEMA_FORM_STYLE } from "../utils/style";
 import { debugModals } from "./debug-ui";
 
 export class SchemaFormSettingTab extends PluginSettingTab {
@@ -18,13 +19,18 @@ export class SchemaFormSettingTab extends PluginSettingTab {
   }
 
   display(): void {
-    const { containerEl } = this;
+    const { containerEl: container } = this;
 
-    containerEl.empty();
-    containerEl.createEl("h2", { text: "Schema Form Settings" });
+    container.empty();
+    container.createEl("h2", { text: "Schema Form Settings" });
 
-    // Debug Mode Toggle
-    new Setting(containerEl)
+    this.addDebugToggle(container);
+    this.addSchemaDirPicker(container);
+    this.addDebugSection(container);
+  }
+
+  private addDebugToggle(container: HTMLElement): void {
+    new Setting(container)
       .setName("Debug Mode")
       .setDesc("Enable debug mode for troubleshooting")
       .addToggle((toggle) =>
@@ -35,9 +41,48 @@ export class SchemaFormSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           }),
       );
+  }
 
-    // Schema Folder Path with Folder Picker
-    new Setting(containerEl)
+  private addDebugSection(container: HTMLElement): void {
+    if (!this.plugin.settings.debugFlag) {
+      return;
+    }
+
+    container.createEl("h2", { text: "Debug Tools" });
+
+    new Setting(container)
+      .setName("Test Error Modal")
+      .setDesc("Test the schema error modal with dummy data")
+      .addButton((button) =>
+        button
+          .setButtonText("Trigger Test Error")
+          .setWarning() // Makes the button red/warning style
+          .onClick(() => {
+            debugModals.basicError(this.app);
+          }),
+      );
+
+    new Setting(container)
+      .setName("Test Parse Error")
+      .setDesc("Test with a realistic JSON parsing error")
+      .addButton((button) =>
+        button.setButtonText("Test JSON Parse Error").onClick(() => {
+          debugModals.parseError(this.app);
+        }),
+      );
+
+    new Setting(container)
+      .setName("Test Complex Error")
+      .setDesc("Test with a complex error with nested stack traces")
+      .addButton((button) =>
+        button.setButtonText("Test Complex Error").onClick(() => {
+          debugModals.complexError(this.app);
+        }),
+      );
+  }
+
+  private addSchemaDirPicker(container: HTMLElement): void {
+    new Setting(container)
       .setName("Schema Folder Path")
       .setDesc("Select the folder containing your schema files")
       .addText((text) => {
@@ -64,69 +109,40 @@ export class SchemaFormSettingTab extends PluginSettingTab {
           }),
       );
 
-    // Show current schema folder info
-    if (this.plugin.settings.schemaDir) {
-      const folderInfo = containerEl.createEl("div", {
-        cls: "setting-item-info",
-      });
-      folderInfo.createEl("div", {
-        text: `Current folder: ${this.plugin.settings.schemaDir}`,
-        cls: "setting-item-description",
-      });
-
-      // Validate folder exists
-      const folder = this.app.vault.getAbstractFileByPath(
-        this.plugin.settings.schemaDir,
-      );
-      if (folder && folder instanceof TFolder) {
-        folderInfo.createEl("div", {
-          text: "✓ Folder exists",
-          cls: "setting-item-description folder-status-success",
-        });
-      } else {
-        folderInfo.createEl("div", {
-          text: "⚠ Folder not found",
-          cls: "setting-item-description folder-status-error",
-        });
-      }
+    if (!this.plugin.settings.schemaDir) {
+      return;
     }
 
-    this.addDebugSection(containerEl);
-  }
+    // Show current schema folder info
+    const folderInfo = container.createEl("div", {
+      cls: "setting-item-info",
+    });
+    folderInfo.createEl("div", {
+      text: `Current folder: ${this.plugin.settings.schemaDir}`,
+      cls: "setting-item-description",
+    });
 
-  private addDebugSection(containerEl: HTMLElement): void {
-    if (this.plugin.settings.debugFlag) {
-      containerEl.createEl("h2", { text: "Debug Tools" });
+    // Validate folder exists
+    const folder = this.app.vault.getAbstractFileByPath(
+      this.plugin.settings.schemaDir,
+    );
 
-      new Setting(containerEl)
-        .setName("Test Error Modal")
-        .setDesc("Test the schema error modal with dummy data")
-        .addButton((button) =>
-          button
-            .setButtonText("Trigger Test Error")
-            .setWarning() // Makes the button red/warning style
-            .onClick(() => {
-              debugModals.basicError(this.app);
-            }),
-        );
-
-      new Setting(containerEl)
-        .setName("Test Parse Error")
-        .setDesc("Test with a realistic JSON parsing error")
-        .addButton((button) =>
-          button.setButtonText("Test JSON Parse Error").onClick(() => {
-            debugModals.parseError(this.app);
-          }),
-        );
-
-      new Setting(containerEl)
-        .setName("Test Complex Error")
-        .setDesc("Test with a complex error with nested stack traces")
-        .addButton((button) =>
-          button.setButtonText("Test Complex Error").onClick(() => {
-            debugModals.complexError(this.app);
-          }),
-        );
+    if (folder && folder instanceof TFolder) {
+      folderInfo.createEl("div", {
+        text: "✓ Folder exists",
+        cls: getPluginClass(
+          SCHEMA_FORM_STYLE.SETTINGS_ITEM_DESC,
+          SCHEMA_FORM_STYLE.SCHEMA_DIR_SUCCESS,
+        ),
+      });
+    } else {
+      folderInfo.createEl("div", {
+        text: "⚠ Folder not found",
+        cls: getPluginClass(
+          SCHEMA_FORM_STYLE.SETTINGS_ITEM_DESC,
+          SCHEMA_FORM_STYLE.SCHEMA_DIR_ERROR,
+        ),
+      });
     }
   }
 
