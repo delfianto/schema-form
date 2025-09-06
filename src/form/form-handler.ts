@@ -53,7 +53,7 @@ export class FormHandler {
     });
   }
 
-  private displayModalForm(schema: Schema): Promise<Record<string, any> | null> {
+  private displayModalForm(schema: Schema): Promise<Record<string, unknown> | null> {
     return new Promise((resolve) => {
       new SchemaFormModal(this.app, schema, (data) => {
         resolve(data);

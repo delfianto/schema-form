@@ -10,10 +10,10 @@ export class SchemaFormModal extends Modal {
   schema: Schema;
   fieldElements: Map<string, HTMLElement> = new Map();
 
-  onSubmit: (data: Record<string, any> | null) => void;
+  onSubmit: (data: Record<string, unknown> | null) => void;
   isSubmitted: boolean = false;
 
-  constructor(app: App, schema: Schema, onSubmit: (data: Record<string, any> | null) => void) {
+  constructor(app: App, schema: Schema, onSubmit: (data: Record<string, unknown> | null) => void) {
     super(app);
     this.formState = new FormState();
     this.formRenderer = new FormRenderer(this.formState);
@@ -40,7 +40,7 @@ export class SchemaFormModal extends Modal {
     this.debugLog("Schema validation passed, field count:", schema.fields.length);
   }
 
-  private debugLog(message: string, ...args: any[]) {
+  private debugLog(message: string, ...args: unknown[]) {
     if (this.app) {
       console.log(`SchemaFormModal: ${message}`, ...args);
     }

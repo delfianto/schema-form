@@ -68,10 +68,10 @@ export class SchemaErrorModal extends Modal {
       errorInfo += `Stack Trace:\n${details.stack}\n\n`;
     }
 
-    // Handle nested errors (if any)
-    if ((details as any).cause) {
-      const cause = (details as any).cause;
+    if (details.cause) {
+      const cause = details.cause as Error;
       errorInfo += `Root Cause: ${cause.message}\n`;
+
       if (cause.stack) {
         errorInfo += `Root Cause Stack:\n${cause.stack}\n\n`;
       }

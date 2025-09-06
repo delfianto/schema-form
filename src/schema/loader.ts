@@ -58,7 +58,7 @@ export async function listFiles(app: App, schemaPath: string): Promise<FileResul
   if (!(folder instanceof TFolder)) {
     return ResultHelpers.err(
       "SCHEMA_PATH_NOT_EXIST",
-      "Schema folder does not exist: " + schemaPath
+      `Schema folder does not exist: ${schemaPath}`
     );
   }
 

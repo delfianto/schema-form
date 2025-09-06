@@ -14,53 +14,53 @@ export interface Err<E = string> {
   details?: Error;
 }
 
-export class ResultHelpers {
-  static ok<T>(data: T, message?: string): Ok<T> {
+export const ResultHelpers = {
+  ok<T>(data: T, message?: string): Ok<T> {
     return {
       success: true,
       data,
       ...(message && { message }),
     };
-  }
+  },
 
-  static err<E = string>(error: E, message: string, details?: Error): Err<E> {
+  err<E = string>(error: E, message: string, details?: Error): Err<E> {
     return {
       success: false,
       error,
       message,
       ...(details && { details }),
     };
-  }
+  },
 
   // Type guards
-  static isOk<T, E>(result: Result<T, E>): result is Ok<T> {
+  isOk<T, E>(result: Result<T, E>): result is Ok<T> {
     return result.success === true;
-  }
+  },
 
-  static isErr<T, E>(result: Result<T, E>): result is Err<E> {
+  isErr<T, E>(result: Result<T, E>): result is Err<E> {
     return result.success === false;
-  }
+  },
 
   // Utility methods
-  static map<T, U, E>(result: Result<T, E>, fn: (data: T) => U): Result<U, E> {
+  map<T, U, E>(result: Result<T, E>, fn: (data: T) => U): Result<U, E> {
     if (ResultHelpers.isOk(result)) {
       return ResultHelpers.ok(fn(result.data));
     }
     return result;
-  }
+  },
 
-  static flatMap<T, U, E>(result: Result<T, E>, fn: (data: T) => Result<U, E>): Result<U, E> {
+  flatMap<T, U, E>(result: Result<T, E>, fn: (data: T) => Result<U, E>): Result<U, E> {
     if (ResultHelpers.isOk(result)) {
       return fn(result.data);
     }
     return result;
-  }
+  },
 
-  static unwrapOr<T, E>(result: Result<T, E>, defaultValue: T): T {
+  unwrapOr<T, E>(result: Result<T, E>, defaultValue: T): T {
     return ResultHelpers.isOk(result) ? result.data : defaultValue;
-  }
+  },
 
-  static unwrapOrThrow<T, E>(result: Result<T, E>): T {
+  unwrapOrThrow<T, E>(result: Result<T, E>): T {
     if (ResultHelpers.isOk(result)) {
       return result.data;
     }
@@ -70,5 +70,5 @@ export class ResultHelpers {
     }
 
     throw new Error(result.message);
-  }
-}
+  },
+} as const;

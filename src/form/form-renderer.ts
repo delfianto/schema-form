@@ -9,6 +9,7 @@ import type {
   TextField,
   ToggleField,
 } from "../schema";
+import { assertIsError } from "../utils/quirks";
 import type { FormState } from "./form-state";
 
 export class FormRenderer {
@@ -29,8 +30,9 @@ export class FormRenderer {
       try {
         this.renderField(container, field);
       } catch (error) {
+        assertIsError(error);
         console.error(`Error rendering field ${field.name}:`, error);
-        this.renderErrorField(container, field, error);
+        this.renderErrorField(container, field, error.message);
       }
     });
   }
@@ -209,9 +211,9 @@ export class FormRenderer {
     });
   }
 
-  private renderErrorField(container: HTMLElement, field: Field, error: any): void {
+  private renderErrorField(container: HTMLElement, field: Field, msg: string): void {
     container.createEl("div", {
-      text: `Error rendering field "${field.name}": ${error.message}`,
+      text: `Error rendering field "${field.name}": ${msg}`,
       cls: "schema-form-error",
     });
   }
@@ -221,7 +223,7 @@ export class FormRenderer {
   }
 
   private setupDefaults(schema: Schema): void {
-    const defaults: Record<string, any> = {};
+    const defaults: Record<string, unknown> = {};
     schema.fields.forEach((field) => {
       if (field.default !== undefined) {
         defaults[field.name] = field.default;
