@@ -1,5 +1,5 @@
 /* Error display styles */
-.schema-error-details {
+.scmf-error-details {
 	background-color: var(--background-modifier-error);
 	padding: 10px;
 	border-radius: 4px;
@@ -9,7 +9,7 @@
 }
 
 /* Form error display */
-.schema-form-error {
+.scmf-form-error {
 	color: red;
 	padding: 8px;
 	border: 1px solid red;
@@ -18,32 +18,32 @@
 }
 
 /* Field validation styles */
-.schema-field-error {
+.scmf-field-error {
 	color: red;
 	font-size: 0.9em;
 	margin-top: 4px;
 	display: block;
 }
 
-.schema-field-valid {
+.scmf-field-valid {
 	color: green;
 	font-size: 0.9em;
 	margin-top: 4px;
 	display: block;
 }
 
-.schema-field-invalid input,
-.schema-field-invalid select {
+.scmf-field-invalid input,
+.scmf-field-invalid select {
 	border: 2px solid red !important;
 }
 
-.schema-field-valid input,
-.schema-field-valid select {
+.scmf-field-valid input,
+.scmf-field-valid select {
 	border: 2px solid green !important;
 }
 
 /* Form summary styles */
-.schema-form-summary {
+.scmf-form-summary {
 	background: var(--background-modifier-error);
 	border: 1px solid var(--background-modifier-error-border);
 	border-radius: 6px;
@@ -52,20 +52,20 @@
 }
 
 /* Validation success message */
-.schema-validation-success {
+.scmf-validation-success {
 	text-align: center;
 }
 
 /* Settings styles */
-.schema-folder-input {
+.scmf-folder-input {
 	cursor: pointer;
 }
 
 /* Folder status indicators */
-.folder-status-success {
+.scmf-folder-status-success {
 	color: var(--text-success);
 }
 
-.folder-status-error {
+.scmf-folder-status-error {
 	color: var(--text-error);
 }

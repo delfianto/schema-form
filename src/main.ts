@@ -32,15 +32,15 @@ export default class SchemaFormPlugin extends Plugin {
   }
 
   async loadSettings() {
-    this.settings = Object.assign({}, Settings.DEFAULT_SETTINGS, await this.loadData());
+    this.settings = await Settings.load(this);
 
-    // Update logger if settings were already initialized
     if (this.settings) {
+      // Update logger if settings were already initialized
       Log.updateSettings(this.settings);
     }
   }
 
   async saveSettings() {
-    await this.saveData(this.settings);
+    await Settings.save(this);
   }
 }
