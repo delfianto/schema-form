@@ -1,4 +1,3 @@
-// src/constants/css-classes.ts
 export const SCHEMA_FORM_STYLE = {
   // Plugin prefix for all classes to avoid conflicts
   PREFIX: "scmf",
