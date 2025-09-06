@@ -3,7 +3,7 @@ import type SchemaFormPlugin from "../main";
 
 const DEFAULT_SETTINGS: SchemaFormSettings = {
   schemaDir: "",
-  debugFlag: false,
+  debugFlag: true,
 };
 
 export interface SchemaFormSettings {

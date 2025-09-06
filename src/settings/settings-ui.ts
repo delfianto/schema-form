@@ -1,5 +1,13 @@
-import { type App, PluginSettingTab, Setting, SuggestModal, TFolder } from "obsidian";
-import type SchemaFormPlugin from "../main";
+import {
+  App,
+  PluginSettingTab,
+  Setting,
+  SuggestModal,
+  TFolder,
+} from "obsidian";
+
+import SchemaFormPlugin from "../main";
+import { debugModals } from "./debug-ui";
 
 export class SchemaFormSettingTab extends PluginSettingTab {
   plugin: SchemaFormPlugin;
@@ -20,10 +28,12 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       .setName("Debug Mode")
       .setDesc("Enable debug mode for troubleshooting")
       .addToggle((toggle) =>
-        toggle.setValue(this.plugin.settings.debugFlag).onChange(async (value) => {
-          this.plugin.settings.debugFlag = value;
-          await this.plugin.saveSettings();
-        })
+        toggle
+          .setValue(this.plugin.settings.debugFlag)
+          .onChange(async (value) => {
+            this.plugin.settings.debugFlag = value;
+            await this.plugin.saveSettings();
+          }),
       );
 
     // Schema Folder Path with Folder Picker
@@ -51,7 +61,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
           .setTooltip("Select folder")
           .onClick(() => {
             this.openFolderPicker();
-          })
+          }),
       );
 
     // Show current schema folder info
@@ -65,7 +75,9 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       });
 
       // Validate folder exists
-      const folder = this.app.vault.getAbstractFileByPath(this.plugin.settings.schemaDir);
+      const folder = this.app.vault.getAbstractFileByPath(
+        this.plugin.settings.schemaDir,
+      );
       if (folder && folder instanceof TFolder) {
         folderInfo.createEl("div", {
           text: "✓ Folder exists",
@@ -77,6 +89,44 @@ export class SchemaFormSettingTab extends PluginSettingTab {
           cls: "setting-item-description folder-status-error",
         });
       }
+    }
+
+    this.addDebugSection(containerEl);
+  }
+
+  private addDebugSection(containerEl: HTMLElement): void {
+    if (this.plugin.settings.debugFlag) {
+      containerEl.createEl("h2", { text: "Debug Tools" });
+
+      new Setting(containerEl)
+        .setName("Test Error Modal")
+        .setDesc("Test the schema error modal with dummy data")
+        .addButton((button) =>
+          button
+            .setButtonText("Trigger Test Error")
+            .setWarning() // Makes the button red/warning style
+            .onClick(() => {
+              debugModals.basicError(this.app);
+            }),
+        );
+
+      new Setting(containerEl)
+        .setName("Test Parse Error")
+        .setDesc("Test with a realistic JSON parsing error")
+        .addButton((button) =>
+          button.setButtonText("Test JSON Parse Error").onClick(() => {
+            debugModals.parseError(this.app);
+          }),
+        );
+
+      new Setting(containerEl)
+        .setName("Test Complex Error")
+        .setDesc("Test with a complex error with nested stack traces")
+        .addButton((button) =>
+          button.setButtonText("Test Complex Error").onClick(() => {
+            debugModals.complexError(this.app);
+          }),
+        );
     }
   }
 
@@ -92,7 +142,9 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       }
 
       getSuggestions(query: string): TFolder[] {
-        return folders.filter((folder) => folder.path.toLowerCase().includes(query.toLowerCase()));
+        return folders.filter((folder) =>
+          folder.path.toLowerCase().includes(query.toLowerCase()),
+        );
       }
 
       renderSuggestion(folder: TFolder, el: HTMLElement) {
@@ -136,5 +188,4 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 
     return folders.sort((a, b) => a.path.localeCompare(b.path));
   }
-
 }
