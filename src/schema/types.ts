@@ -49,7 +49,7 @@ export type FileErrType =
 export type LoaderResult = Result<
   {
     file: string;
-    schemas: Schema;
+    schema: Schema;
   },
   LoaderErrType
 >;

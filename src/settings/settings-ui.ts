@@ -7,8 +7,9 @@ import {
 } from "obsidian";
 
 import SchemaFormPlugin from "../main";
-import { getPluginClass, SCHEMA_FORM_STYLE } from "../utils/style";
+import { FormHandler } from "../form";
 import { debugModals } from "./debug-ui";
+import { getPluginClass, SCHEMA_FORM_STYLE } from "../utils/style";
 
 export class SchemaFormSettingTab extends PluginSettingTab {
   plugin: SchemaFormPlugin;
@@ -78,6 +79,19 @@ export class SchemaFormSettingTab extends PluginSettingTab {
         button.setButtonText("Test Complex Error").onClick(() => {
           debugModals.complexError(this.app);
         }),
+      );
+
+    new Setting(container)
+      .setName("Test Schema Directory")
+      .setDesc("Test loading schemas from the configured directory")
+      .addButton((button) =>
+        button
+          .setButtonText("Test Schema Loading")
+          .onClick(async () => {
+            const formHandler = new FormHandler(this.app, this.plugin.settings.schemaDir);
+            const formData = await formHandler.showForm();
+            console.log("Form result:", formData);
+          }),
       );
   }
 
@@ -175,7 +189,9 @@ export class SchemaFormSettingTab extends PluginSettingTab {
     new FolderSuggestModal(this.app, async (folder: TFolder) => {
       this.plugin.settings.schemaDir = folder.path;
       await this.plugin.saveSettings();
-      this.display(); // Refresh the settings display
+
+      // Refresh the settings display
+      this.display();
     }).open();
   }
 
