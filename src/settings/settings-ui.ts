@@ -23,13 +23,6 @@ export class SchemaFormSettingTab extends PluginSettingTab {
         toggle.setValue(this.plugin.settings.debugFlag).onChange(async (value) => {
           this.plugin.settings.debugFlag = value;
           await this.plugin.saveSettings();
-
-          // Update debug API availability
-          // if (value) {
-          // 	this.enableDebugAPI();
-          // } else {
-          // 	this.disableDebugAPI();
-          // }
         })
       );
 
@@ -88,7 +81,6 @@ export class SchemaFormSettingTab extends PluginSettingTab {
   }
 
   private async openFolderPicker(): Promise<void> {
-    // Create a modal for folder selection
     const folders = this.getAllFolders();
     class FolderSuggestModal extends SuggestModal<TFolder> {
       private onChoose: (folder: TFolder) => void;
@@ -107,7 +99,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
         el.createEl("div", { text: folder.path });
       }
 
-      onChooseSuggestion(folder: TFolder, evt: MouseEvent | KeyboardEvent) {
+      onChooseSuggestion(folder: TFolder) {
         this.onChoose(folder);
       }
     }
@@ -145,31 +137,4 @@ export class SchemaFormSettingTab extends PluginSettingTab {
     return folders.sort((a, b) => a.path.localeCompare(b.path));
   }
 
-  private enableDebugAPI(): void {
-    // Expose debug API to global window object
-    // if (!window.SchemaFormDebug) {
-    // 	window.SchemaFormDebug = {
-    // 		isPluginLoaded: () => {
-    // 			return !!this.plugin && this.plugin.app !== undefined;
-    // 		},
-    // 		getTemplaterObject: () => {
-    // 			return window.Templater;
-    // 		},
-    // 		testAPI: () => {
-    // 			return window.Templater?.SchemaForm;
-    // 		},
-    // 	};
-    // }
-
-    console.log("Schema Form Debug API enabled");
-  }
-
-  private disableDebugAPI(): void {
-    // Remove debug API from global window object
-    // if (window.SchemaFormDebug) {
-    // 	delete window.SchemaFormDebug;
-    // }
-
-    console.log("Schema Form Debug API disabled");
-  }
 }
