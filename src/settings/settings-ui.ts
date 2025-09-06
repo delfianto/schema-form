@@ -56,7 +56,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       .addButton((button) =>
         button
           .setButtonText("Trigger Test Error")
-          .setWarning() // Makes the button red/warning style
+          .setWarning()
           .onClick(() => {
             debugModals.basicError(this.app);
           }),
