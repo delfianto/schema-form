@@ -1,21 +1,11 @@
-import { App, PluginSettingTab, Setting, TFolder } from "obsidian";
-import SchemaFormPlugin from "./main";
-
-export interface SchemaFormSettings {
-	schemaFolderPath: string;
-	debugMode: boolean;
-}
-
-export const DEFAULT_SETTINGS: SchemaFormSettings = {
-	schemaFolderPath: "",
-	debugMode: false,
-};
+import { App, PluginSettingTab, Setting, SuggestModal, TFolder } from "obsidian";
+import SchemaFormPlugin from "../main";
 
 export class SchemaFormSettingTab extends PluginSettingTab {
 	plugin: SchemaFormPlugin;
 
-	constructor(app: App, plugin: SchemaFormPlugin) {
-		super(app, plugin);
+	constructor(plugin: SchemaFormPlugin) {
+		super(plugin.app, plugin);
 		this.plugin = plugin;
 	}
 
@@ -31,17 +21,17 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 			.setDesc("Enable debug mode for troubleshooting")
 			.addToggle((toggle) =>
 				toggle
-					.setValue(this.plugin.settings.debugMode)
+					.setValue(this.plugin.settings.debugFlag)
 					.onChange(async (value) => {
-						this.plugin.settings.debugMode = value;
+						this.plugin.settings.debugFlag = value;
 						await this.plugin.saveSettings();
 
 						// Update debug API availability
-						if (value) {
-							this.enableDebugAPI();
-						} else {
-							this.disableDebugAPI();
-						}
+						// if (value) {
+						// 	this.enableDebugAPI();
+						// } else {
+						// 	this.disableDebugAPI();
+						// }
 					}),
 			);
 
@@ -51,15 +41,15 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 			.setDesc("Select the folder containing your schema files")
 			.addText((text) => {
 				text.setPlaceholder("Select a folder...")
-					.setValue(this.plugin.settings.schemaFolderPath)
+					.setValue(this.plugin.settings.schemaDir)
 					.onChange(async (value) => {
-						this.plugin.settings.schemaFolderPath = value;
+						this.plugin.settings.schemaDir = value;
 						await this.plugin.saveSettings();
 					});
 
 				// Make the text input readonly to force folder picker usage
 				text.inputEl.readOnly = true;
-				text.inputEl.classList.add("schema-folder-input"); // Use CSS class instead of inline style
+				text.inputEl.classList.add("schema-folder-input");
 
 				return text;
 			})
@@ -72,32 +62,29 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 					}),
 			);
 
-		// Additional settings section
-		containerEl.createEl("h3", { text: "Advanced Settings" });
-
 		// Show current schema folder info
-		if (this.plugin.settings.schemaFolderPath) {
+		if (this.plugin.settings.schemaDir) {
 			const folderInfo = containerEl.createEl("div", {
 				cls: "setting-item-info",
 			});
 			folderInfo.createEl("div", {
-				text: `Current folder: ${this.plugin.settings.schemaFolderPath}`,
+				text: `Current folder: ${this.plugin.settings.schemaDir}`,
 				cls: "setting-item-description",
 			});
 
 			// Validate folder exists
 			const folder = this.app.vault.getAbstractFileByPath(
-				this.plugin.settings.schemaFolderPath,
+				this.plugin.settings.schemaDir,
 			);
 			if (folder && folder instanceof TFolder) {
 				folderInfo.createEl("div", {
 					text: "✓ Folder exists",
-					cls: "setting-item-description folder-status-success", // Use CSS class
+					cls: "setting-item-description folder-status-success",
 				});
 			} else {
 				folderInfo.createEl("div", {
 					text: "⚠ Folder not found",
-					cls: "setting-item-description folder-status-error", // Use CSS class
+					cls: "setting-item-description folder-status-error",
 				});
 			}
 		}
@@ -106,10 +93,6 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 	private async openFolderPicker(): Promise<void> {
 		// Create a modal for folder selection
 		const folders = this.getAllFolders();
-
-		// Use Obsidian's built-in suggest modal
-		const { SuggestModal } = require("obsidian");
-
 		class FolderSuggestModal extends SuggestModal<TFolder> {
 			private onChoose: (folder: TFolder) => void;
 
@@ -138,7 +121,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 		}
 
 		new FolderSuggestModal(this.app, async (folder: TFolder) => {
-			this.plugin.settings.schemaFolderPath = folder.path;
+			this.plugin.settings.schemaDir = folder.path;
 			await this.plugin.saveSettings();
 			this.display(); // Refresh the settings display
 		}).open();
@@ -172,28 +155,28 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 
 	private enableDebugAPI(): void {
 		// Expose debug API to global window object
-		if (!window.SchemaFormDebug) {
-			window.SchemaFormDebug = {
-				isPluginLoaded: () => {
-					return !!this.plugin && this.plugin.app !== undefined;
-				},
-				getTemplaterObject: () => {
-					return window.Templater;
-				},
-				testAPI: () => {
-					return window.Templater?.SchemaForm;
-				},
-			};
-		}
+		// if (!window.SchemaFormDebug) {
+		// 	window.SchemaFormDebug = {
+		// 		isPluginLoaded: () => {
+		// 			return !!this.plugin && this.plugin.app !== undefined;
+		// 		},
+		// 		getTemplaterObject: () => {
+		// 			return window.Templater;
+		// 		},
+		// 		testAPI: () => {
+		// 			return window.Templater?.SchemaForm;
+		// 		},
+		// 	};
+		// }
 
 		console.log("Schema Form Debug API enabled");
 	}
 
 	private disableDebugAPI(): void {
 		// Remove debug API from global window object
-		if (window.SchemaFormDebug) {
-			delete window.SchemaFormDebug;
-		}
+		// if (window.SchemaFormDebug) {
+		// 	delete window.SchemaFormDebug;
+		// }
 
 		console.log("Schema Form Debug API disabled");
 	}

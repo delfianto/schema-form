@@ -1,0 +1,177 @@
+import * as Schema from "./schema";
+import { SchemaFormSettings, SchemaFormSettingTab } from "./settings";
+import { Plugin, Notice, TFile } from "obsidian";
+import { SchemaFormModal } from "./modal";
+
+export default class MyPlugin extends Plugin {
+	settings!: SchemaFormSettings;
+	private apiReadyPromise: Promise<void>;
+	private apiReadyResolve: () => void = () => {};
+	private isApiExposed: boolean = false;
+
+	constructor(app: any, manifest: any) {
+		super(app, manifest);
+		// Initialize the promise and resolver in the constructor
+		this.apiReadyPromise = new Promise((resolve) => {
+			this.apiReadyResolve = resolve;
+		});
+	}
+
+	private debugLog(message: string, ...args: any[]) {
+		if (this.settings?.debugMode) {
+			console.log(`SchemaForm Plugin: ${message}`, ...args);
+		}
+	}
+
+	async onload() {
+		this.debugLog("Starting onload()");
+		await this.loadSettings();
+
+		// Add command to open schema form
+		this.addCommand({
+			id: "open-schema-form",
+			name: "Open Schema-based Form",
+			callback: async () => {
+				const file = await chooseSchemaFile(
+					this.app,
+					this.settings.schemaFolderPath,
+				);
+				if (!file) return;
+
+				const schema = await loadSchemaFromFile(
+					this.app,
+					file,
+					this.settings.debugMode,
+				);
+				if (!schema) return;
+
+				new SchemaFormModal(
+					this.app,
+					schema,
+					this.settings.debugMode,
+					(data) => {
+						this.debugLog("Form data submitted:", data);
+					},
+				).open();
+			},
+		});
+
+		// Add settings tab
+		this.addSettingTab(new SchemaFormSettingTab(this.app, this));
+
+		// Expose API immediately
+		this.debugLog("About to expose API immediately");
+		this.exposeApi();
+
+		// Also ensure API is available after layout is ready (backup)
+		this.app.workspace.onLayoutReady(() => {
+			this.debugLog("onLayoutReady fired");
+			if (!this.isApiExposed) {
+				this.exposeApi();
+			}
+		});
+	}
+
+	onunload() {
+		this.debugLog("Plugin unloading");
+
+		// Remove the style element when plugin unloads
+		const styleEl = document.getElementById("schema-form-styles");
+		if (styleEl) {
+			styleEl.remove();
+		}
+
+		// Clean up API
+		if (window.Templater?.SchemaForm) {
+			delete window.Templater.SchemaForm;
+		}
+	}
+
+	async loadSettings() {
+		this.settings = Object.assign(
+			{},
+			DEFAULT_SETTINGS,
+			await this.loadData(),
+		);
+		this.debugLog("Settings loaded:", this.settings);
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
+		this.debugLog("Settings saved:", this.settings);
+	}
+
+	private exposeApi() {
+		this.debugLog("exposeApi() called");
+
+		// Initialize Templater object if it doesn't exist
+		if (!window.Templater) {
+			window.Templater = {};
+			this.debugLog("Created window.Templater object");
+		}
+
+		// Expose the SchemaForm API
+		window.Templater.SchemaForm = {
+			openForm: async (
+				schemaFilePath: string,
+			): Promise<Record<string, any> | null> => {
+				this.debugLog(
+					`API openForm called with path: ${schemaFilePath}`,
+				);
+
+				try {
+					// Get the file from the path
+					const file =
+						this.app.vault.getAbstractFileByPath(schemaFilePath);
+					if (!(file instanceof TFile)) {
+						const errorMsg = `File not found or not a file: ${schemaFilePath}`;
+						this.debugLog(errorMsg);
+						new Notice(errorMsg);
+						return null;
+					}
+
+					// Load the schema
+					const schema = await loadSchemaFromFile(
+						this.app,
+						file,
+						this.settings.debugMode,
+					);
+					if (!schema) {
+						this.debugLog("Failed to load schema");
+						return null;
+					}
+
+					// Open the modal and wait for result
+					return new Promise((resolve) => {
+						new SchemaFormModal(
+							this.app,
+							schema,
+							this.settings.debugMode,
+							(data) => {
+								this.debugLog("Form data from API:", data);
+								// Return null if user cancelled (empty object)
+								if (!data || Object.keys(data).length === 0) {
+									resolve(null);
+								} else {
+									resolve(data);
+								}
+							},
+						).open();
+					});
+				} catch (error) {
+					const errorMsg = getErrorMessage(error);
+					this.debugLog(`Error in openForm: ${errorMsg}`);
+					new Notice(`Error opening form: ${errorMsg}`);
+					return null;
+				}
+			},
+			isReady: (): boolean => {
+				return true;
+			},
+		};
+
+		this.isApiExposed = true;
+		this.apiReadyResolve();
+		this.debugLog("API exposed successfully");
+	}
+}

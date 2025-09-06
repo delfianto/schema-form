@@ -1,9 +1,9 @@
 export function createLogger(isDebug: boolean) {
 	return {
-		info: (...args: any[]) => console.info("INFO:", ...args),
-		warn: (...args: any[]) => console.warn("WARN:", ...args),
-		error: (...args: any[]) => console.error("ERROR:", ...args),
-		debug: (...args: any[]) => {
+		info: (...args: unknown[]) => console.info("INFO:", ...args),
+		warn: (...args: unknown[]) => console.warn("WARN:", ...args),
+		error: (...args: unknown[]) => console.error("ERROR:", ...args),
+		debug: (...args: unknown[]) => {
 			if (isDebug) console.debug("DEBUG:", ...args);
 		},
 	};
