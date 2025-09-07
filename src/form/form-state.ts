@@ -1,19 +1,19 @@
 export class FormState {
-  private data: Record<string, any> = {};
-  private validators: Map<string, (value: any) => string[]> = new Map();
-  private changeListeners: Map<string, Set<(value: any) => void>> = new Map();
+  private data: Record<string, unknown> = {};
+  private validators: Map<string, (value: unknown) => string[]> = new Map();
+  private changeListeners: Map<string, Set<(value: unknown) => void>> = new Map();
   private validationListeners: Set<() => void> = new Set();
 
-  constructor(init: Record<string, any> = {}) {
+  constructor(init: Record<string, unknown> = {}) {
     this.data = { ...init };
   }
 
   // Data management
-  getValue(fieldName: string): any {
+  getValue(fieldName: string): unknown {
     return this.data[fieldName];
   }
 
-  setValue(fieldName: string, value: any): void {
+  setValue(fieldName: string, value: unknown): void {
     const oldValue = this.data[fieldName];
     this.data[fieldName] = value;
 
@@ -23,11 +23,11 @@ export class FormState {
     }
   }
 
-  getAllData(): Record<string, any> {
+  getAllData(): Record<string, unknown> {
     return { ...this.data };
   }
 
-  setDefaults(defaults: Record<string, any>): void {
+  setDefaults(defaults: Record<string, unknown>): void {
     Object.entries(defaults).forEach(([key, value]) => {
       if (this.data[key] === undefined) {
         this.data[key] = value;
@@ -36,7 +36,7 @@ export class FormState {
   }
 
   // Validation management
-  addValidator(fieldName: string, validator: (value: any) => string[]): void {
+  addValidator(fieldName: string, validator: (value: unknown) => string[]): void {
     this.validators.set(fieldName, validator);
   }
 
@@ -61,25 +61,33 @@ export class FormState {
   }
 
   // Event system
-  onFieldChange(fieldName: string, listener: (value: any) => void): void {
+  onFieldChange(fieldName: string, listener: (value: unknown) => void): void {
     if (!this.changeListeners.has(fieldName)) {
       this.changeListeners.set(fieldName, new Set());
     }
-    this.changeListeners.get(fieldName)!.add(listener);
+
+    if (listener) {
+      this.changeListeners.get(fieldName)?.add(listener);
+    }
   }
 
   onValidationChange(listener: () => void): void {
     this.validationListeners.add(listener);
   }
 
-  private notifyFieldListeners(fieldName: string, value: any): void {
+  private notifyFieldListeners(fieldName: string, value: unknown): void {
     const listeners = this.changeListeners.get(fieldName);
+
     if (listeners) {
-      listeners.forEach((listener) => listener(value));
+      listeners.forEach((listener) => {
+        listener(value);
+      });
     }
   }
 
   private notifyValidationListeners(): void {
-    this.validationListeners.forEach((listener) => listener());
+    this.validationListeners.forEach((listener) => {
+      listener();
+    });
   }
 }
