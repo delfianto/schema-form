@@ -20,17 +20,23 @@ export class FileSelectorModal extends Modal {
         .setName(file.name)
         .setDesc(file.path)
         .addButton((btn) =>
-          btn.setButtonText("Select").onClick(() => {
-            this.resolve(file);
-          })
+          btn
+            .setButtonText("Select")
+            .setCta()
+            .onClick(() => {
+              this.resolve(file);
+            })
         );
     });
 
     // Cancel button
     new Setting(contentEl).addButton((btn) =>
-      btn.setButtonText("Cancel").onClick(() => {
-        this.resolve();
-      })
+      btn
+        .setButtonText("Cancel")
+        .setWarning()
+        .onClick(() => {
+          this.resolve();
+        })
     );
   }
 
@@ -45,7 +51,7 @@ export class FileSelectorModal extends Modal {
 
   resolve(file?: TFile) {
     if (!this.resolved) {
-      if (file != undefined) {
+      if (file !== undefined) {
         this.onChoose(file);
       } else {
         this.onChoose(null);

@@ -1,7 +1,7 @@
 import { type App, Modal, Setting } from "obsidian";
 import type { LoaderErrType } from "../schema";
+import { SCHEMA_FORM_STYLE } from "../ui";
 import type { Err } from "../utils/result";
-import { SCHEMA_FORM_STYLE } from "../utils/style";
 
 export class SchemaErrorModal extends Modal {
   error: Err<LoaderErrType>;

@@ -1,7 +1,7 @@
 import { type App, PluginSettingTab, Setting, SuggestModal, TFolder } from "obsidian";
 import { FormHandler } from "../form";
 import type SchemaFormPlugin from "../main";
-import { getPluginClass, SCHEMA_FORM_STYLE } from "../utils/style";
+import * as ui from "../ui";
 import { debugModals } from "./debug-ui";
 
 export class SchemaFormSettingTab extends PluginSettingTab {
@@ -42,46 +42,51 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 
     container.createEl("h2", { text: "Debug Tools" });
 
-    new Setting(container)
-      .setName("Test Error Modal")
-      .setDesc("Test the schema error modal with dummy data")
-      .addButton((button) =>
-        button
-          .setButtonText("Trigger Test Error")
-          .setWarning()
-          .onClick(() => {
-            debugModals.basicError(this.app);
-          })
-      );
+    ui.settingBtnWarn(
+      container,
+      "Test General Error Modal",
+      "Test the schema error modal with dummy data",
+      "Show Error",
+      ui.cssClass(ui.SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN),
+      () => {
+        debugModals.basicError(this.app);
+      }
+    );
 
-    new Setting(container)
-      .setName("Test Parse Error")
-      .setDesc("Test with a realistic JSON parsing error")
-      .addButton((button) =>
-        button.setButtonText("Test JSON Parse Error").onClick(() => {
-          debugModals.parseError(this.app);
-        })
-      );
+    ui.settingBtnCta(
+      container,
+      "Test Schema Parse Error Modal",
+      "Test with a realistic JSON parsing error",
+      "JSON Error",
+      ui.cssClass(ui.SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN),
+      () => {
+        debugModals.parseError(this.app);
+      }
+    );
 
-    new Setting(container)
-      .setName("Test Complex Error")
-      .setDesc("Test with a complex error with nested stack traces")
-      .addButton((button) =>
-        button.setButtonText("Test Complex Error").onClick(() => {
-          debugModals.complexError(this.app);
-        })
-      );
+    ui.settingBtnCta(
+      container,
+      "Show Complex Error Modal",
+      "Test with a complex error with nested stack traces",
+      "Complex Error",
+      ui.cssClass(ui.SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN),
+      () => {
+        debugModals.complexError(this.app);
+      }
+    );
 
-    new Setting(container)
-      .setName("Test Schema Directory")
-      .setDesc("Test loading schemas from the configured directory")
-      .addButton((button) =>
-        button.setButtonText("Test Schema Loading").onClick(async () => {
-          const formHandler = new FormHandler(this.app, this.plugin.settings.schemaDir);
-          const formData = await formHandler.showForm();
-          console.log("Form result:", formData);
-        })
-      );
+    ui.settingBtnCta(
+      container,
+      "Test Schema Modal Form",
+      "Test loading schemas from the configured directory",
+      "Load Schema",
+      ui.cssClass(ui.SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN),
+      async () => {
+        const formHandler = new FormHandler(this.app, this.plugin.settings.schemaDir);
+        const formData = await formHandler.showForm();
+        console.log("Form result:", formData);
+      }
+    );
   }
 
   private addSchemaDirPicker(container: HTMLElement): void {
@@ -131,17 +136,17 @@ export class SchemaFormSettingTab extends PluginSettingTab {
     if (folder && folder instanceof TFolder) {
       folderInfo.createEl("div", {
         text: "✓ Folder exists",
-        cls: getPluginClass(
-          SCHEMA_FORM_STYLE.SETTINGS_ITEM_DESC,
-          SCHEMA_FORM_STYLE.SCHEMA_DIR_SUCCESS
+        cls: ui.cssClass(
+          ui.SCHEMA_FORM_STYLE.SETTINGS_ITEM_DESC,
+          ui.SCHEMA_FORM_STYLE.SCHEMA_DIR_SUCCESS
         ),
       });
     } else {
       folderInfo.createEl("div", {
         text: "⚠ Folder not found",
-        cls: getPluginClass(
-          SCHEMA_FORM_STYLE.SETTINGS_ITEM_DESC,
-          SCHEMA_FORM_STYLE.SCHEMA_DIR_ERROR
+        cls: ui.cssClass(
+          ui.SCHEMA_FORM_STYLE.SETTINGS_ITEM_DESC,
+          ui.SCHEMA_FORM_STYLE.SCHEMA_DIR_ERROR
         ),
       });
     }

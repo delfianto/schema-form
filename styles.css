@@ -23,6 +23,15 @@
   background-color: var(--background-secondary-alt);
 }
 
+/* Debug buttons in settings */
+.setting-item .setting-item-control button.scmf-setting-debug-button {
+  width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
 /* Folder status indicators in plugin settings */
 .scmf-schema-dir-status-ok {
 	color: var(--text-success);
