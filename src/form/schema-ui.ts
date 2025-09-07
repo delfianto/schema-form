@@ -59,8 +59,17 @@ export class SchemaFormModal extends Modal {
       }
 
       this.debugLog("About to render", this.schema.fields.length, "fields");
-
       this.formRenderer.renderSchema(contentEl, this.schema);
+
+      // Submit button
+      new Setting(contentEl)
+        .addButton((btn) =>
+          btn
+            .setButtonText("Submit")
+            .setCta()
+            .onClick(() => this.handleSubmit())
+        )
+        .addButton((btn) => btn.setButtonText("Cancel").onClick(() => this.close()));
     } catch (error) {
       console.error("SchemaFormModal: Error in onOpen:", error);
       contentEl.createEl("div", {
@@ -76,6 +85,9 @@ export class SchemaFormModal extends Modal {
   }
 
   handleSubmit() {
+    const formData = this.formState.getAllData();
+    this.isSubmitted = true;
+    this.onSubmit(formData);
     this.close();
   }
 
