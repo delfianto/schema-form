@@ -43,11 +43,12 @@ export class SchemaFormSettingTab extends PluginSettingTab {
     container.createEl("h2", { text: "Debug Tools" });
 
     new Setting(container)
-      .setName("Test Error Modal")
+      .setName("Test General Error Modal")
       .setDesc("Test the schema error modal with dummy data")
       .addButton((button) =>
         button
-          .setButtonText("Trigger Test Error")
+          .setClass(cssClass(SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN))
+          .setButtonText("Show Error")
           .setWarning()
           .onClick(() => {
             debugModals.basicError(this.app);
@@ -55,32 +56,44 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       );
 
     new Setting(container)
-      .setName("Test Parse Error")
+      .setName("Test Schema Parse Error Modal")
       .setDesc("Test with a realistic JSON parsing error")
       .addButton((button) =>
-        button.setButtonText("Test JSON Parse Error").onClick(() => {
-          debugModals.parseError(this.app);
-        })
+        button
+          .setClass(cssClass(SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN))
+          .setButtonText("JSON Error")
+          .setCta()
+          .onClick(() => {
+            debugModals.parseError(this.app);
+          })
       );
 
     new Setting(container)
-      .setName("Test Complex Error")
+      .setName("Show Complex Error Modal")
       .setDesc("Test with a complex error with nested stack traces")
       .addButton((button) =>
-        button.setButtonText("Test Complex Error").onClick(() => {
-          debugModals.complexError(this.app);
-        })
+        button
+          .setClass(cssClass(SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN))
+          .setButtonText("Complex Error")
+          .setCta()
+          .onClick(() => {
+            debugModals.complexError(this.app);
+          })
       );
 
     new Setting(container)
-      .setName("Test Schema Directory")
+      .setName("Test Schema Modal Form")
       .setDesc("Test loading schemas from the configured directory")
       .addButton((button) =>
-        button.setButtonText("Test Schema Loading").onClick(async () => {
-          const formHandler = new FormHandler(this.app, this.plugin.settings.schemaDir);
-          const formData = await formHandler.showForm();
-          console.log("Form result:", formData);
-        })
+        button
+          .setClass(cssClass(SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN))
+          .setButtonText("Load Schema")
+          .setCta()
+          .onClick(async () => {
+            const formHandler = new FormHandler(this.app, this.plugin.settings.schemaDir);
+            const formData = await formHandler.showForm();
+            console.log("Form result:", formData);
+          })
       );
   }
 
@@ -107,6 +120,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
         button
           .setButtonText("Browse")
           .setTooltip("Select folder")
+          .setCta()
           .onClick(() => {
             this.openFolderPicker();
           })
