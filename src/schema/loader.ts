@@ -1,8 +1,8 @@
 import * as yaml from "js-yaml";
 import { type App, TFile, TFolder } from "obsidian";
-import { ResultHelpers } from "../utils/result";
 import type { Schema } from "./schema";
-import { type FileResult, LoaderErr, LoaderErrType, type LoaderResult } from "./types";
+import { ErrorCode, SchemaError } from "./error";
+import { assertIsError } from "../utils/quirks";
 
 function parseSchema(lang: string, code: string): Schema {
   let parsed: unknown;
@@ -25,41 +25,30 @@ function readCodeBlock(content: string): { lang: string; code: string } | null {
   };
 }
 
-function loaderError(errType: LoaderErrType, errDetails?: Error) {
-  return ResultHelpers.err(errType, LoaderErr.getMessage(errType), errDetails);
-}
-
-export async function loadSchema(app: App, file: TFile): Promise<LoaderResult> {
+export async function loadSchema(app: App, file: TFile): Promise<Schema> {
   try {
     const contents = await app.vault.read(file);
     const block = readCodeBlock(contents);
 
     if (!block) {
-      return loaderError(LoaderErrType.INVALID_SCHEMA_FORMAT);
+      throw new SchemaError(ErrorCode.FILE_MISSING_SCHEMA);
     }
 
-    const schema = parseSchema(block.lang, block.code);
-    return ResultHelpers.ok({ file: file.name, schema: schema });
+    return parseSchema(block.lang, block.code);
   } catch (error) {
-    const errDetails = error instanceof Error ? error : new Error(String(error));
-    return loaderError(LoaderErrType.YAML_PARSE_ERROR, errDetails);
+    assertIsError(error);
+    throw new SchemaError(ErrorCode.SCHEMA_YAML_ERROR, { cause: error });
   }
 }
 
-export async function listFiles(app: App, schemaPath: string): Promise<FileResult> {
+export async function listFiles(app: App, schemaPath: string): Promise<TFile[]> {
   if (!schemaPath.trim()) {
-    return ResultHelpers.err(
-      "SCHEMA_PATH_UNDEFINED",
-      "Please configure schema folder path in settings"
-    );
+    throw new SchemaError(ErrorCode.SCHEMA_PATH_UNDEFINED);
   }
 
   const folder = app.vault.getAbstractFileByPath(schemaPath);
   if (!(folder instanceof TFolder)) {
-    return ResultHelpers.err(
-      "SCHEMA_PATH_NOT_EXIST",
-      `Schema folder does not exist: ${schemaPath}`
-    );
+    throw new SchemaError(ErrorCode.SCHEMA_PATH_INVALID);
   }
 
   const schemaFiles = folder.children.filter(
@@ -67,11 +56,8 @@ export async function listFiles(app: App, schemaPath: string): Promise<FileResul
   ) as TFile[];
 
   if (schemaFiles.length === 0) {
-    return ResultHelpers.err("SCHEMA_PATH_IS_EMPTY", "No markdown files found in schema folder");
+    throw new SchemaError(ErrorCode.SCHEMA_PATH_EMPTY);
   }
 
-  return ResultHelpers.ok(
-    { files: schemaFiles },
-    schemaFiles.length === 1 ? "Single markdown file found" : "Multiple markdown files found"
-  );
+  return schemaFiles;
 }

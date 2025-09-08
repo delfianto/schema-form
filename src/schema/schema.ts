@@ -1,70 +1,3 @@
-export type FieldType =
-  | "TEXT"
-  | "TEXT_AREA"
-  | "NUMBER"
-  | "TOGGLE"
-  | "SELECT"
-  | "MULTI_SELECT"
-  | "DATE";
-
-export interface ValidationRule {
-  type: "regex" | "minLength" | "maxLength" | "min" | "max" | "custom";
-  value?: unknown;
-  message?: string;
-}
-
-export interface BaseField {
-  name: string;
-  label: string;
-  description?: string;
-  required?: boolean;
-  default?: unknown;
-  validators?: ValidationRule[];
-}
-
-export interface TextField extends BaseField {
-  type: "TEXT";
-  regex?: string;
-  minLength?: number;
-  maxLength?: number;
-}
-
-export interface TextAreaField extends BaseField {
-  type: "TEXT_AREA";
-  rows?: number;
-  maxLength?: number;
-}
-
-export interface NumberField extends BaseField {
-  type: "NUMBER";
-  min?: number;
-  max?: number;
-  step?: number;
-}
-
-export interface ToggleField extends BaseField {
-  type: "TOGGLE";
-  default?: boolean;
-}
-
-export interface SelectField extends BaseField {
-  type: "SELECT";
-  options: string[] | { value: string; label: string }[];
-}
-
-export interface MultiSelectField extends BaseField {
-  type: "MULTI_SELECT";
-  options: string[] | { value: string; label: string }[];
-  maxSelections?: number;
-}
-
-export interface DateField extends BaseField {
-  type: "DATE";
-  minDate?: string;
-  maxDate?: string;
-  format?: string;
-}
-
 export type Field =
   | TextField
   | TextAreaField
@@ -74,8 +7,66 @@ export type Field =
   | MultiSelectField
   | DateField;
 
+export interface BaseField {
+  readonly name: string;
+  readonly label: string;
+  readonly description?: string;
+  readonly required?: boolean;
+  readonly default?: unknown;
+  validators?: ValidationRule[];
+}
+
+export interface TextField extends BaseField {
+  readonly type: "TEXT";
+  readonly regex?: string;
+  readonly minLength?: number;
+  readonly maxLength?: number;
+}
+
+export interface TextAreaField extends BaseField {
+  readonly type: "TEXT_AREA";
+  readonly rows?: number;
+  readonly maxLength?: number;
+}
+
+export interface NumberField extends BaseField {
+  readonly type: "NUMBER";
+  readonly min?: number;
+  readonly max?: number;
+  readonly step?: number;
+}
+
+export interface ToggleField extends BaseField {
+  readonly type: "TOGGLE";
+  readonly default?: boolean;
+}
+
+export interface SelectField extends BaseField {
+  readonly type: "SELECT";
+  readonly options: string[] | { value: string; label: string }[];
+}
+
+export interface MultiSelectField extends BaseField {
+  readonly type: "MULTI_SELECT";
+  readonly options: string[] | { value: string; label: string }[];
+  readonly maxSelections?: number;
+}
+
+export interface DateField extends BaseField {
+  readonly type: "DATE";
+  readonly minDate?: string;
+  readonly maxDate?: string;
+  readonly format?: string;
+}
+
 export interface Schema {
-  fields: Field[];
+  readonly fields: Field[];
+}
+
+export interface ValidationRule {
+  type: "regex" | "minLength" | "maxLength" | "min" | "max" | "custom";
+  value?: unknown;
+  message?: string;
 }
 
 export function getErrorMessage(error: unknown): string {
