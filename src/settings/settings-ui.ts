@@ -1,8 +1,7 @@
 import { type App, PluginSettingTab, Setting, SuggestModal, TFolder } from "obsidian";
-import { FormHandler } from "../form";
 import type SchemaFormPlugin from "../main";
-import { cssClass, SCHEMA_FORM_STYLE } from "../ui";
-import { debugModals } from "./debug-ui";
+import { cssClass, SCHEMA_FORM_STYLE } from "../style";
+import { addDebugSection } from "./debug-ui";
 
 export class SchemaFormSettingTab extends PluginSettingTab {
   plugin: SchemaFormPlugin;
@@ -20,7 +19,10 @@ export class SchemaFormSettingTab extends PluginSettingTab {
 
     this.addDebugToggle(container);
     this.addSchemaDirPicker(container);
-    this.addDebugSection(container);
+
+    if (this.plugin.settings.debugFlag) {
+      addDebugSection(container, this.plugin);
+    }
   }
 
   private addDebugToggle(container: HTMLElement): void {
@@ -32,68 +34,6 @@ export class SchemaFormSettingTab extends PluginSettingTab {
           this.plugin.settings.debugFlag = value;
           await this.plugin.saveSettings();
         })
-      );
-  }
-
-  private addDebugSection(container: HTMLElement): void {
-    if (!this.plugin.settings.debugFlag) {
-      return;
-    }
-
-    container.createEl("h2", { text: "Debug Tools" });
-
-    new Setting(container)
-      .setName("Test General Error Modal")
-      .setDesc("Test the schema error modal with dummy data")
-      .addButton((button) =>
-        button
-          .setClass(cssClass(SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN))
-          .setButtonText("Show Error")
-          .setWarning()
-          .onClick(() => {
-            debugModals.basicError(this.app);
-          })
-      );
-
-    new Setting(container)
-      .setName("Test Schema Parse Error Modal")
-      .setDesc("Test with a realistic JSON parsing error")
-      .addButton((button) =>
-        button
-          .setClass(cssClass(SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN))
-          .setButtonText("JSON Error")
-          .setCta()
-          .onClick(() => {
-            debugModals.parseError(this.app);
-          })
-      );
-
-    new Setting(container)
-      .setName("Show Complex Error Modal")
-      .setDesc("Test with a complex error with nested stack traces")
-      .addButton((button) =>
-        button
-          .setClass(cssClass(SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN))
-          .setButtonText("Complex Error")
-          .setCta()
-          .onClick(() => {
-            debugModals.complexError(this.app);
-          })
-      );
-
-    new Setting(container)
-      .setName("Test Schema Modal Form")
-      .setDesc("Test loading schemas from the configured directory")
-      .addButton((button) =>
-        button
-          .setClass(cssClass(SCHEMA_FORM_STYLE.SETTINGS_DEBUG_BTN))
-          .setButtonText("Load Schema")
-          .setCta()
-          .onClick(async () => {
-            const formHandler = new FormHandler(this.app, this.plugin.settings.schemaDir);
-            const formData = await formHandler.showForm();
-            console.log("Form result:", formData);
-          })
       );
   }
 
