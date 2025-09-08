@@ -20,9 +20,6 @@ export class FormRenderer {
     this.state = formState;
   }
 
-  /**
-   * Main entry point, render entire form from a schema
-   */
   renderSchema(container: HTMLElement, schema: Schema): void {
     this.setupDefaults(schema);
 
@@ -37,9 +34,6 @@ export class FormRenderer {
     });
   }
 
-  /**
-   * Render individual field based on type
-   */
   private renderField(container: HTMLElement, field: Field): void {
     const fieldContainer = container.createEl("div", {
       cls: `field-${field.name}`,
@@ -64,6 +58,7 @@ export class FormRenderer {
         this.renderSelectField(fieldContainer, field);
         break;
       case "MULTI_SELECT":
+        // TODO: implement this
         // this.renderSelectField(fieldContainer, field);
         break;
       case "DATE":
@@ -145,15 +140,14 @@ export class FormRenderer {
     const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addToggle((toggle) => {
-      // Get current value or default
-      const currentValue = this.state.getValue(field.name) ?? field.default ?? false;
+      const currentValue = this.state.getValue(field.name) as boolean | undefined;
+      const booleanValue = currentValue ?? field.default ?? false;
 
-      toggle.setValue(currentValue).onChange((value) => {
+      toggle.setValue(booleanValue).onChange((value) => {
         this.state.setValue(field.name, value);
       });
     });
 
-    // Initialize state if not set
     if (this.state.getValue(field.name) === undefined) {
       this.state.setValue(field.name, field.default ?? false);
     }
@@ -168,8 +162,9 @@ export class FormRenderer {
           dropdown.addOption(String(option), String(option));
         });
 
-        const currentValue = this.state.getValue(field.name) || field.options[0];
-        dropdown.setValue(currentValue);
+        const currentValue = this.state.getValue(field.name) as string | undefined;
+        const stringValue = currentValue || (field.options[0] as string);
+        dropdown.setValue(stringValue);
 
         if (!this.state.getValue(field.name)) {
           this.state.setValue(field.name, field.options[0]);
@@ -186,27 +181,24 @@ export class FormRenderer {
     const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addText((text) => {
-      // Set input type to date
       text.inputEl.type = "date";
 
-      // Set current value
-      const currentValue = this.state.getValue(field.name) || "";
-      text.setValue(currentValue);
+      const currentValue = this.state.getValue(field.name) as string | undefined;
+      const stringValue = currentValue || "";
+      text.setValue(stringValue);
 
-      // Set min/max dates if specified
       if (field.minDate) {
         text.inputEl.min = field.minDate;
       }
+
       if (field.maxDate) {
         text.inputEl.max = field.maxDate;
       }
 
-      // Handle date changes
       text.onChange((value) => {
         this.state.setValue(field.name, value);
       });
 
-      // Set placeholder
       text.setPlaceholder(field.required ? "Required" : "Optional");
     });
   }
