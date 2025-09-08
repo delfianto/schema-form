@@ -1,14 +1,17 @@
 import { type App, Notice, type TFile } from "obsidian";
+import type SchemaFormPlugin from "../main";
 import { listFiles, loadSchema, type Schema } from "../schema";
 import { SchemaFormModal } from "./schema-ui";
 import { FileSelectorModal } from "./selector-ui";
 
 export class FormHandler {
   private app: App;
+  private plugin: SchemaFormPlugin;
   private schemaDir: string;
 
-  constructor(app: App, schemaDir: string = "") {
-    this.app = app;
+  constructor(plugin: SchemaFormPlugin, schemaDir: string = "") {
+    this.app = plugin.app;
+    this.plugin = plugin;
     this.schemaDir = schemaDir;
   }
 
@@ -51,7 +54,7 @@ export class FormHandler {
 
   private displayModalForm(schema: Schema): Promise<Record<string, unknown> | null> {
     return new Promise((resolve) => {
-      new SchemaFormModal(this.app, schema, (data) => {
+      new SchemaFormModal(this.app, this.plugin, schema, (data) => {
         resolve(data);
       }).open();
     });

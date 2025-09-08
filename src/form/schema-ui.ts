@@ -1,4 +1,5 @@
 import { type App, Modal, Notice, Setting } from "obsidian";
+import type SchemaFormPlugin from "../main";
 import type { Schema } from "../schema";
 import { FormRenderer } from "./form-renderer";
 import { FormState } from "./form-state";
@@ -7,14 +8,21 @@ export class SchemaFormModal extends Modal {
   formState: FormState;
   formRenderer: FormRenderer;
 
+  plugin: SchemaFormPlugin;
   schema: Schema;
-  fieldElements: Map<string, HTMLElement> = new Map();
 
+  fieldElements: Map<string, HTMLElement> = new Map();
   onSubmit: (data: Record<string, unknown> | null) => void;
   isSubmitted: boolean = false;
 
-  constructor(app: App, schema: Schema, onSubmit: (data: Record<string, unknown> | null) => void) {
+  constructor(
+    app: App,
+    plugin: SchemaFormPlugin,
+    schema: Schema,
+    onSubmit: (data: Record<string, unknown> | null) => void
+  ) {
     super(app);
+    this.plugin = plugin;
     this.formState = new FormState();
     this.formRenderer = new FormRenderer(this.formState);
 
@@ -87,6 +95,11 @@ export class SchemaFormModal extends Modal {
   handleSubmit() {
     const formData = this.formState.getAllData();
     this.isSubmitted = true;
+
+    if (this.plugin && typeof this.plugin.submitFormData === "function") {
+      this.plugin.submitFormData(formData);
+    }
+
     this.onSubmit(formData);
     this.close();
   }

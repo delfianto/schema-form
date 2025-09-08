@@ -54,7 +54,7 @@ export function addDebugSection(container: HTMLElement, plugin: SchemaFormPlugin
         .setButtonText("Load Schema")
         .setCta()
         .onClick(async () => {
-          const formHandler = new FormHandler(plugin.app, plugin.settings.schemaDir);
+          const formHandler = new FormHandler(plugin, plugin.settings.schemaDir);
           const formData = await formHandler.showForm();
           console.log("Form result:", formData);
         })

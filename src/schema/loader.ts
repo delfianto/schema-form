@@ -1,8 +1,8 @@
 import * as yaml from "js-yaml";
 import { type App, TFile, TFolder } from "obsidian";
-import type { Schema } from "./schema";
-import { ErrorCode, SchemaError } from "./error";
 import { assertIsError } from "../utils/quirks";
+import { ErrorCode, SchemaError } from "./error";
+import type { Schema } from "./schema";
 
 function parseSchema(lang: string, code: string): Schema {
   let parsed: unknown;
