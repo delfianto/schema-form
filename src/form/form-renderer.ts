@@ -26,6 +26,7 @@ export class FormRenderer {
     schema.fields.forEach((field) => {
       try {
         this.renderField(container, field);
+        this.state.setLabel(field.name, field.label);
       } catch (error) {
         assertIsError(error);
         console.error(`Error rendering field ${field.name}:`, error);

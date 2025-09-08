@@ -1,5 +1,7 @@
 export class FormState {
   private data: Record<string, unknown> = {};
+  private label: Record<string, string> = {};
+
   private validators: Map<string, (value: unknown) => string[]> = new Map();
   private changeListeners: Map<string, Set<(value: unknown) => void>> = new Map();
   private validationListeners: Set<() => void> = new Set();
@@ -23,8 +25,16 @@ export class FormState {
     }
   }
 
+  getLabel(fieldName: string): string {
+    return this.label[fieldName];
+  }
+
+  setLabel(fieldName: string, label: string): void {
+    this.label[fieldName] = label;
+  }
+
   getAllData(): Record<string, unknown> {
-    return { ...this.data };
+    return { data: this.data, label: this.label };
   }
 
   setDefaults(defaults: Record<string, unknown>): void {

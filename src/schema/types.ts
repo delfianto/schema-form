@@ -24,12 +24,6 @@ export type FieldTypeMap = {
   DATETIME: Date;
 };
 
-export interface FieldResult<T extends FieldType = FieldType> {
-  readonly label: string;
-  readonly value: FieldTypeMap[T];
-  readonly type: T;
-}
-
 export type ParseResult = Result<
   {
     file: string;
