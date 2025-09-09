@@ -1,34 +1,13 @@
-import { type App, Plugin, type PluginManifest } from "obsidian";
+import { Plugin } from "obsidian";
+import { registerApi, unregisterApi } from "./api";
 import * as Settings from "./settings";
 import * as Log from "./utils/logger";
 
-declare global {
-  interface Window {
-    scf: SCFApi;
-  }
-}
-
-export interface SCFApi {
-  value: (fieldName: string) => unknown;
-  label: (fieldName: string) => string;
-  hasData: () => boolean;
-}
-
 export default class SchemaFormPlugin extends Plugin {
   settings!: Settings.SchemaFormSettings;
-  private formData: Record<string, unknown> = {};
-  private labelData: Record<string, string> = {};
-
-  private isApiExposed: boolean = false;
-  private apiReadyPromise: Promise<void>;
-  private apiReadyResolve: () => void = () => {};
-
-  constructor(app: App, manifest: PluginManifest) {
-    super(app, manifest);
-    this.apiReadyPromise = new Promise((resolve) => {
-      this.apiReadyResolve = resolve;
-    });
-  }
+  formData: Record<string, unknown> = {};
+  labelData: Record<string, string> = {};
+  isApiExposed: boolean = false;
 
   submitFormData(submitted: Record<string, unknown>) {
     this.formData = submitted.data as Record<string, unknown>;
@@ -47,10 +26,11 @@ export default class SchemaFormPlugin extends Plugin {
     this.addSettingTab(new Settings.SchemaFormSettingTab(this));
 
     // Register scf API
-    this.registerApi();
+    registerApi(this);
   }
 
   async onunload() {
+    unregisterApi();
     Log.info("Schema Form Plugin unloaded");
   }
 
@@ -65,27 +45,5 @@ export default class SchemaFormPlugin extends Plugin {
 
   async saveSettings() {
     await Settings.save(this);
-  }
-
-  private getApi(): SCFApi {
-    return {
-      value: (fieldName: string): unknown => {
-        return this.formData[fieldName] || "{{none}}";
-      },
-      label: (fieldName: string): string => {
-        return this.labelData[fieldName] || "{{none}}";
-      },
-      hasData: (): boolean => {
-        return Object.keys(this.formData).length > 0;
-      },
-    };
-  }
-
-  private registerApi() {
-    if (!this.isApiExposed) {
-      window.scf = this.getApi();
-      this.isApiExposed = true;
-      console.log("SCF API exposed globally as 'scf'");
-    }
   }
 }

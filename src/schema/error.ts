@@ -22,6 +22,16 @@ const DEFAULT_ERROR_MESSAGES: Record<ErrorCode, string> = {
   [ErrorCode.SCHEMA_YAML_ERROR]: "YAML parsing error in schema",
 };
 
+export class FormError extends Error {
+  constructor(
+    message: string,
+    public readonly cause?: Error
+  ) {
+    super(message);
+    this.name = "FormError";
+  }
+}
+
 export class SchemaError extends Error {
   public readonly code: ErrorCode;
   public readonly path?: string;
@@ -31,14 +41,13 @@ export class SchemaError extends Error {
     code: ErrorCode,
     options?: {
       path?: string;
-      message?: string,
+      message?: string;
       cause?: Error;
       details?: Record<string, unknown>;
     }
   ) {
-    const errorMessage = options?.message ||
-      DEFAULT_ERROR_MESSAGES[code] ||
-      "An unknown schema error occurred";
+    const errorMessage =
+      options?.message || DEFAULT_ERROR_MESSAGES[code] || "An unknown schema error occurred";
 
     super(errorMessage, { cause: options?.cause });
     this.name = "SchemaError";
@@ -51,7 +60,7 @@ export class SchemaError extends Error {
 }
 
 export class YamlParseError extends SchemaError {
-  constructor(options?: { path?: string; message?: string, cause?: Error }) {
+  constructor(options?: { path?: string; message?: string; cause?: Error }) {
     super(ErrorCode.SCHEMA_YAML_ERROR, options);
     this.name = "YamlParseError";
     Object.setPrototypeOf(this, YamlParseError.prototype);
@@ -59,15 +68,13 @@ export class YamlParseError extends SchemaError {
 }
 
 export class ValidationError extends SchemaError {
-  constructor(
-    options?: {
-      path?: string;
-      field?: string;
-      value?: unknown;
-      message?: string,
-      cause?: Error;
-    }
-  ) {
+  constructor(options?: {
+    path?: string;
+    field?: string;
+    value?: unknown;
+    message?: string;
+    cause?: Error;
+  }) {
     super(ErrorCode.SCHEMA_VALIDATION_ERROR, {
       ...options,
       details: {
