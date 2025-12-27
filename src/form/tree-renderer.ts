@@ -1,3 +1,5 @@
+import { cssClass, SCHEMA_FORM_STYLE } from "../style";
+
 export function renderFromObject(
   container: HTMLElement,
   obj: unknown,
@@ -20,8 +22,10 @@ export function renderFromObject(
     const valueString = String(obj);
     if (valueString.length > 50) {
       // For longer strings/primitives, put value in a child element
-      detailsEl.createEl("pre", { text: valueString, cls: "scf-debug-value" }).style.marginLeft =
-        "20px";
+      detailsEl.createEl("pre", {
+        text: valueString,
+        cls: cssClass(SCHEMA_FORM_STYLE.DEBUG_VALUE),
+      }).style.marginLeft = "20px";
     } else {
       summaryEl.textContent += `: ${valueString}`;
     }
@@ -59,7 +63,7 @@ export function renderFromObject(
       if (valueString.length > 50) {
         leafDetailsEl.createEl("pre", {
           text: valueString,
-          cls: "scf-debug-value",
+          cls: cssClass(SCHEMA_FORM_STYLE.DEBUG_VALUE),
         }).style.marginLeft = "20px";
       } else {
         leafSummaryEl.textContent += `: ${valueString}`;
@@ -68,7 +72,3 @@ export function renderFromObject(
     }
   }
 }
-
-// TODO: Add some basic CSS in plugin's CSS
-// Example inline style concept (better in a separate CSS file):
-// const styleEl = container.doc?.head?.createEl("style", { text: ".scf-debug-value { white-space: pre-wrap; }" });

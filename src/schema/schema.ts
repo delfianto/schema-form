@@ -13,7 +13,6 @@ export interface BaseField {
   readonly description?: string;
   readonly required?: boolean;
   readonly default?: unknown;
-  validators?: ValidationRule[];
 }
 
 export interface TextField extends BaseField {
@@ -61,22 +60,4 @@ export interface DateField extends BaseField {
 
 export interface Schema {
   readonly fields: Field[];
-}
-
-export interface ValidationRule {
-  type: "regex" | "minLength" | "maxLength" | "min" | "max" | "custom";
-  value?: unknown;
-  message?: string;
-}
-
-export function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-
-  if (typeof error === "string") {
-    return error;
-  }
-
-  return String(error);
 }

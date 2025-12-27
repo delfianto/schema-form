@@ -4,6 +4,15 @@ export const SCHEMA_FORM_STYLE = {
 
   // Error modal
   ERROR_STACKTRACE: "error-stacktrace",
+  ERROR_MESSAGE: "error-message",
+
+  // Debug views
+  DEBUG_VALUE: "debug-value",
+  DEBUG_ERROR_TREE: "debug-error-tree",
+
+  // Form errors and warnings
+  FORM_ERROR: "form-error",
+  FORM_WARNING: "form-warning",
 
   // Plugin settings view
   SCHEMA_DIR_ERROR: "schema-dir-status-err",

@@ -1,6 +1,8 @@
 import { type App, Modal, Notice, Setting } from "obsidian";
 import type SchemaFormPlugin from "../main";
 import type { Schema } from "../schema";
+import { cssClass, SCHEMA_FORM_STYLE } from "../style";
+import * as Log from "../utils/logger";
 import { FormRenderer } from "./form-renderer";
 import { FormState } from "./form-state";
 
@@ -49,9 +51,7 @@ export class SchemaFormModal extends Modal {
   }
 
   private debugLog(message: string, ...args: unknown[]) {
-    if (this.app) {
-      console.log(`SchemaFormModal: ${message}`, ...args);
-    }
+    Log.debug(`SchemaFormModal: ${message}`, ...args);
   }
 
   onOpen() {
@@ -79,10 +79,10 @@ export class SchemaFormModal extends Modal {
         )
         .addButton((btn) => btn.setButtonText("Cancel").onClick(() => this.close()));
     } catch (error) {
-      console.error("SchemaFormModal: Error in onOpen:", error);
+      Log.error("SchemaFormModal: Error in onOpen:", error);
       contentEl.createEl("div", {
         text: `Error rendering form`,
-        cls: "schema-form-error",
+        cls: cssClass(SCHEMA_FORM_STYLE.FORM_ERROR),
       });
 
       // Still show cancel button

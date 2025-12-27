@@ -9,6 +9,8 @@ import type {
   TextField,
   ToggleField,
 } from "../schema";
+import { cssClass, SCHEMA_FORM_STYLE } from "../style";
+import * as Log from "../utils/logger";
 import { assertIsError } from "../utils/quirks";
 import type { FormState } from "./form-state";
 
@@ -29,7 +31,7 @@ export class FormRenderer {
         this.state.setLabel(field.name, field.label);
       } catch (error) {
         assertIsError(error);
-        console.error(`Error rendering field ${field.name}:`, error);
+        Log.error(`Error rendering field ${field.name}:`, error);
         this.renderErrorField(container, field, error.message);
       }
     });
@@ -59,8 +61,11 @@ export class FormRenderer {
         this.renderSelectField(fieldContainer, field);
         break;
       case "MULTI_SELECT":
-        // TODO: implement this
-        // this.renderSelectField(fieldContainer, field);
+        this.renderUnimplementedField(
+          fieldContainer,
+          field,
+          "MULTI_SELECT fields are not yet supported"
+        );
         break;
       case "DATE":
         this.renderDateField(fieldContainer, field);
@@ -207,12 +212,19 @@ export class FormRenderer {
   private renderErrorField(container: HTMLElement, field: Field, msg: string): void {
     container.createEl("div", {
       text: `Error rendering field "${field.name}": ${msg}`,
-      cls: "schema-form-error",
+      cls: cssClass(SCHEMA_FORM_STYLE.FORM_ERROR),
     });
   }
 
   private renderUnknownField(container: HTMLElement, field: Field): void {
     new Setting(container).setName(this.label(field)).setDesc(`Unknown field type: ${field.type}`);
+  }
+
+  private renderUnimplementedField(container: HTMLElement, field: Field, message: string): void {
+    new Setting(container)
+      .setName(this.label(field))
+      .setDesc(message)
+      .setClass(cssClass(SCHEMA_FORM_STYLE.FORM_WARNING));
   }
 
   private setupDefaults(schema: Schema): void {

@@ -1,6 +1,10 @@
 import { type App, Notice, type TFile } from "obsidian";
 import type SchemaFormPlugin from "../main";
 import { listFiles, loadSchema, type Schema } from "../schema";
+import { SchemaError } from "../schema/error";
+import * as Log from "../utils/logger";
+import { assertIsError } from "../utils/quirks";
+import { DebugErrorModal } from "./error-ui-dbg";
 import { SchemaFormModal } from "./schema-ui";
 import { FileSelectorModal } from "./selector-ui";
 
@@ -34,7 +38,24 @@ export class FormHandler {
 
       return this.displayModalForm(schema);
     } catch (error) {
-      console.error("Unexpected error", error);
+      assertIsError(error);
+
+      // Show user-friendly error modal for schema errors
+      if (error instanceof SchemaError) {
+        Log.error("Schema error occurred:", error);
+
+        // Show detailed error modal to help user fix the schema
+        new DebugErrorModal(this.app, error, "Schema Loading Error").open();
+
+        // Also show a brief notice
+        new Notice(`Schema error: ${error.message}`);
+      } else {
+        // For unexpected errors, still show the debug modal
+        Log.error("Unexpected error in showForm:", error);
+        new DebugErrorModal(this.app, error, "Unexpected Error").open();
+        new Notice("An unexpected error occurred. See error details in the modal.");
+      }
+
       return null;
     }
   }

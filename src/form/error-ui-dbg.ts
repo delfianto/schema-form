@@ -1,4 +1,5 @@
 import { type App, Modal, Setting } from "obsidian";
+import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import { assertIsError } from "../utils/quirks";
 import { renderFromObject } from "./tree-renderer";
 
@@ -44,7 +45,7 @@ export class DebugErrorModal extends Modal {
 
     // Create a container div for the tree
     const treeContainer = contentEl.createEl("div");
-    treeContainer.addClass("scf-debug-error-tree"); // For potential styling
+    treeContainer.addClass(cssClass(SCHEMA_FORM_STYLE.DEBUG_ERROR_TREE));
 
     try {
       // Use the existing render function

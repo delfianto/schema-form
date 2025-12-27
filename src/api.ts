@@ -1,6 +1,7 @@
 import { FormHandler } from "./form";
 import type SchemaFormPlugin from "./main";
 import { FormError } from "./schema/error";
+import * as Log from "./utils/logger";
 
 declare global {
   interface Window {
@@ -73,25 +74,20 @@ export function getApi(plugin: SchemaFormPlugin): SCFApi {
 
 export function registerApi(plugin: SchemaFormPlugin): void {
   if (window.scf) {
-    console.warn("SCF API already registered, skipping...");
+    Log.warn("SCF API already registered, skipping...");
     return;
   }
 
   window.scf = getApi(plugin);
   plugin.isApiExposed = true;
 
-  console.log("✅ SCF API registered successfully");
+  Log.info("✅ SCF API registered successfully");
 }
 
 export function unregisterApi(): void {
   if (window.scf) {
     delete window.scf;
     apiInstance = null;
-    console.log("🧹 SCF API unregistered");
+    Log.info("🧹 SCF API unregistered");
   }
 }
-
-// Utility types for better TypeScript experience
-export type ApiMethods = keyof SCFApi;
-export type ValueGetter = SCFApi["value"];
-export type LabelGetter = SCFApi["label"];
