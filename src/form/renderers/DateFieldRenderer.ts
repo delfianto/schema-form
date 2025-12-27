@@ -18,23 +18,15 @@ export class DateFieldRenderer
     setting.addText((text) => {
       text.inputEl.type = "date";
 
-      const currentValue = state.getValue(field.name) as string | undefined;
-      const stringValue = currentValue || "";
-      text.setValue(stringValue);
+      if (field.minDate) text.inputEl.min = field.minDate;
+      if (field.maxDate) text.inputEl.max = field.maxDate;
 
-      if (field.minDate) {
-        text.inputEl.min = field.minDate;
-      }
-
-      if (field.maxDate) {
-        text.inputEl.max = field.maxDate;
-      }
-
-      text.onChange((value) => {
-        state.setValue(field.name, value);
-      });
-
-      text.setPlaceholder(this.placeholder(field));
+      text
+        .setPlaceholder(this.placeholder(field))
+        .setValue(String(this.stateValue(field, state) ?? ""))
+        .onChange((value) => {
+          state.setValue(field.name, value);
+        });
     });
 
     this.setupErrorFeedback(container, field, state, setting);

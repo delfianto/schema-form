@@ -1,6 +1,3 @@
-/**
- * Simple memoization helper for expensive computations.
- */
 export function memoize<Args extends unknown[], Return>(
   fn: (...args: Args) => Return,
 ): (...args: Args) => Return {

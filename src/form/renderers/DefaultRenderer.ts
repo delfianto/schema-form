@@ -2,9 +2,6 @@ import type { Field } from "../../schema/definitions";
 import type { FormState } from "../FormState";
 import { BaseFieldRenderer, type FieldRendererStrategy } from "./types";
 
-/**
- * Fallback renderer for unknown field types.
- */
 export class DefaultRenderer extends BaseFieldRenderer implements FieldRendererStrategy {
   supports(_type: string): boolean {
     return true; // Catch-all

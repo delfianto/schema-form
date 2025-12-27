@@ -9,42 +9,15 @@ declare global {
   }
 }
 
-/**
- * Public API for the Schema Form plugin.
- * Accessible via `window.scf`.
- */
 export interface SCFApi {
-  /**
-   * Retrieves the value of a specific form field from the last submission.
-   * @param fieldName The name of the field to retrieve.
-   * @returns The value of the field, or null if not found.
-   */
   readonly value: (fieldName: string) => unknown | null;
 
-  /**
-   * Retrieves the label of a specific form field from the last submission.
-   * @param fieldName The name of the field.
-   * @returns The label of the field, or null if no label is found.
-   */
   readonly label: (fieldName: string) => string | null;
 
-  /**
-   * Checks if there is any data from a previous form submission.
-   * @returns True if form data exists, false otherwise.
-   */
   readonly hasData: () => boolean;
 
-  /**
-   * Triggers the schema selection and form modal.
-   * @param schemaName Optional name of a specific schema file to trigger directly.
-   * @returns A promise that resolves to the submitted form data.
-   * @throws FormError if the form is cancelled or an error occurs.
-   */
   readonly triggerForm: (schemaName?: string) => Promise<FormData>;
 
-  /**
-   * Resets the internal form data and labels.
-   */
   readonly reset: () => void;
 }
 
@@ -97,8 +70,6 @@ export function getApi(plugin: SchemaFormPlugin): SCFApi {
 }
 
 export function registerApi(plugin: SchemaFormPlugin): void {
-  // If window.scf exists, we overwrite it with the new plugin instance's API
-  // This is better for Obsidian hot-reloading
   window.scf = getApi(plugin);
   plugin.isApiExposed = true;
 

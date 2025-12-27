@@ -101,7 +101,6 @@ const showComplexErrorModal = (app: App): void => {
   at loadSchema (file:///your-plugin/loader.ts:45:23)
   at async YourPlugin.loadSchemaFile (file:///your-plugin/main.ts:123:45)`;
 
-  // Add the root cause to the wrapper error
   wrapperError.cause = rootCause;
 
   const modal = new DebugErrorModal(app, rootCause, "Schema validation failed");

@@ -16,7 +16,7 @@ export class ToggleFieldRenderer
     const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     setting.addToggle((toggle) => {
-      const currentValue = state.getValue(field.name) as boolean | undefined;
+      const currentValue = this.stateValue(field, state) as boolean | undefined;
       const booleanValue = currentValue ?? field.default ?? false;
 
       toggle.setValue(booleanValue).onChange((value) => {
@@ -24,8 +24,7 @@ export class ToggleFieldRenderer
       });
     });
 
-    // Ensure default value is set in state if not present
-    if (state.getValue(field.name) === undefined) {
+    if (this.stateValue(field, state) === undefined) {
       state.setValue(field.name, field.default ?? false);
     }
 

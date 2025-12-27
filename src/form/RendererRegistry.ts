@@ -7,7 +7,6 @@ const defaultStrategy: FieldRendererStrategy<Field> = new DefaultRenderer();
 
 export const RendererRegistry = {
   register(strategy: FieldRendererStrategy<Field>) {
-    // Check if strategy already exists to avoid duplicates
     const exists = strategies.some((s) => s.constructor.name === strategy.constructor.name);
     if (!exists) {
       strategies.push(strategy);

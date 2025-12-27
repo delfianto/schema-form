@@ -18,7 +18,7 @@ export class TextAreaFieldRenderer
     setting.addTextArea((textarea) => {
       textarea
         .setPlaceholder(this.placeholder(field))
-        .setValue(this.stateValue(field, state))
+        .setValue(String(this.stateValue(field, state) ?? ""))
         .onChange(
           debounce((value) => {
             state.setValue(field.name, value);

@@ -23,14 +23,14 @@ export class SelectFieldRenderer
           dropdown.addOption(value, label);
         });
 
-        const currentValue = state.getValue(field.name) as string | undefined;
+        const currentValue = this.stateValue(field, state) as string | undefined;
         const stringValue =
           currentValue ||
           (typeof field.options[0] === "string" ? field.options[0] : field.options[0]?.value) ||
           "";
         dropdown.setValue(stringValue);
 
-        if (!state.getValue(field.name)) {
+        if (!currentValue) {
           state.setValue(field.name, stringValue);
         }
       }

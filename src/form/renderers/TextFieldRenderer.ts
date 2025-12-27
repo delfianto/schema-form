@@ -19,7 +19,7 @@ export class TextFieldRenderer
     setting.addText((text) => {
       text
         .setPlaceholder(this.placeholder(field))
-        .setValue(this.stateValue(field, state))
+        .setValue(String(this.stateValue(field, state) ?? ""))
         .onChange(
           debounce((value) => {
             state.setValue(field.name, value);

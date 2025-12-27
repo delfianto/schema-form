@@ -20,7 +20,7 @@ export class MultiSelectFieldRenderer
       cls: cssClass(SCHEMA_FORM_STYLE.MULTI_SELECT_CONTAINER || "multi-select-container"),
     });
 
-    const selectedValues = new Set<string>((state.getValue(field.name) as string[]) || []);
+    const selectedValues = new Set<string>((this.stateValue(field, state) as string[]) || []);
 
     if (field.options && Array.isArray(field.options)) {
       field.options.forEach((option) => {

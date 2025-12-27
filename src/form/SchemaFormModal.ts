@@ -29,8 +29,6 @@ export class SchemaFormModal extends Modal {
     this.schema = schema;
     this.onSubmit = onSubmit;
 
-    this.debugLog("Constructor called with schema:", schema);
-
     if (!schema) {
       throw new Error("Schema is null or undefined");
     }
@@ -42,8 +40,6 @@ export class SchemaFormModal extends Modal {
     if (!Array.isArray(schema.fields)) {
       throw new Error("Schema 'fields' must be an array");
     }
-
-    this.debugLog("Schema validation passed, field count:", schema.fields.length);
   }
 
   private debugLog(message: string, ...args: unknown[]) {

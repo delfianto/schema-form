@@ -110,9 +110,6 @@ export async function loadSchema(app: App, file: TFile): Promise<Schema> {
   }
 }
 
-/**
- * Loads a schema with an optional fallback schema in case of failure.
- */
 export async function loadSchemaWithFallback(
   app: App,
   file: TFile,

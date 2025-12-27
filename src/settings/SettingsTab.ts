@@ -50,7 +50,6 @@ export class SchemaFormSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           });
 
-        // Make the text input readonly to force folder picker usage
         text.inputEl.readOnly = true;
         text.inputEl.classList.add("schema-folder-input");
 

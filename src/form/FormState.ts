@@ -25,7 +25,6 @@ export class FormState {
     if (oldValue !== sanitizedValue) {
       this.notifyFieldListeners(fieldName, sanitizedValue);
 
-      // ✅ NEW: Run validation immediately on change
       const errors = this.validateField(fieldName);
       this.notifyErrorListeners(fieldName, errors);
 

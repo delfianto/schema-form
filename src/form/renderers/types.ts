@@ -2,44 +2,30 @@ import type { Setting } from "obsidian";
 import type { Field } from "../../schema/definitions";
 import type { FormState } from "../FormState";
 
-/**
- * Interface for field rendering strategies.
- */
 export interface FieldRendererStrategy<T extends Field = Field> {
-  /**
-   * Returns true if this renderer handles the given field type.
-   */
   supports(type: string): boolean;
 
-  /**
-   * Renders the field into the container.
-   */
   render(container: HTMLElement, field: T, state: FormState): void;
 
-  /**
-   * Returns a validation function for this field.
-   */
   getValidator(field: T): (value: unknown) => string[];
 }
 
-/**
- * Base class for field renderers providing common helpers.
- */
 export abstract class BaseFieldRenderer {
   protected label(field: Field): string {
     return (field.label || field.name) + (field.required ? " *" : "");
   }
 
-  protected desc(field: Field): string {
+  protected desc(field: Field): string | DocumentFragment {
     return field.description || "";
   }
 
-  protected placeholder(field: Field): string {
+  protected placeholder(field: Field & { placeholder?: string }): string {
+    if (field.placeholder) return field.placeholder;
     return field.required ? "Required" : "Optional";
   }
 
-  protected stateValue(field: Field, state: FormState): string {
-    return state.getValue(field.name)?.toString() || "";
+  protected stateValue(field: Field, state: FormState): unknown {
+    return state.getValue(field.name);
   }
 
   protected setupErrorFeedback(
@@ -48,23 +34,31 @@ export abstract class BaseFieldRenderer {
     state: FormState,
     setting: Setting,
   ): void {
+    const errorId = `error-${field.name}`;
     const errorDiv = container.createEl("div", {
       cls: "scf-error-message",
+      attr: { id: errorId, role: "alert" },
     });
+
+    const inputEl = setting.controlEl.querySelector("input, select, textarea");
+    if (inputEl) {
+      inputEl.setAttribute("aria-describedby", errorId);
+    }
 
     state.onErrorChange(field.name, (errors) => {
       if (errors.length > 0) {
         setting.controlEl.addClass("has-error");
         errorDiv.setText(errors[0] ?? "Invalid value");
         errorDiv.addClass("visible");
+        if (inputEl) inputEl.setAttribute("aria-invalid", "true");
       } else {
         setting.controlEl.removeClass("has-error");
         errorDiv.removeClass("visible");
         errorDiv.setText("");
+        if (inputEl) inputEl.setAttribute("aria-invalid", "false");
       }
     });
 
-    // Initial check
     const val = state.getValue(field.name);
     if (val !== undefined && val !== "") {
       const errors = state.validateField(field.name);
@@ -72,6 +66,7 @@ export abstract class BaseFieldRenderer {
         setting.controlEl.addClass("has-error");
         errorDiv.setText(errors[0] ?? "Invalid value");
         errorDiv.addClass("visible");
+        if (inputEl) inputEl.setAttribute("aria-invalid", "true");
       }
     }
   }
