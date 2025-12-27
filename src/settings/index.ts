@@ -1,2 +1,2 @@
+export * from "./SettingsTab";
 export * from "./settings";
-export * from "./settings-ui";

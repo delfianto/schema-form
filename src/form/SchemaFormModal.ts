@@ -3,8 +3,8 @@ import type SchemaFormPlugin from "../main";
 import type { Schema } from "../schema";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import * as Log from "../utils/logger";
-import { FormRenderer } from "./form-renderer";
-import { FormState } from "./form-state";
+import { FormRenderer } from "./FormRenderer";
+import { FormState } from "./FormState";
 
 export class SchemaFormModal extends Modal {
   formState: FormState;

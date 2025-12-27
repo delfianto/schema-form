@@ -4,9 +4,9 @@ import { listFiles, loadSchema, type Schema } from "../schema";
 import { SchemaError } from "../schema/error";
 import * as Log from "../utils/logger";
 import { assertIsError } from "../utils/quirks";
-import { DebugErrorModal } from "./error-ui-dbg";
-import { SchemaFormModal } from "./schema-ui";
-import { FileSelectorModal } from "./selector-ui";
+import { DebugErrorModal } from "./DebugErrorModal";
+import { FileSelectorModal } from "./FileSelectorModal";
+import { SchemaFormModal } from "./SchemaFormModal";
 
 export class FormHandler {
   private app: App;

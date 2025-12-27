@@ -1,8 +1,8 @@
 import * as yaml from "js-yaml";
 import { type App, TFile, TFolder } from "obsidian";
 import { assertIsError } from "../utils/quirks";
+import type { Schema } from "./definitions";
 import { ErrorCode, SchemaError } from "./error";
-import type { Schema } from "./schema";
 
 function isValidSchema(value: unknown): value is Schema {
   if (!value || typeof value !== "object") {

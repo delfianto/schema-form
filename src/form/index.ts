@@ -1,2 +1,2 @@
-export { DebugErrorModal } from "./error-ui-dbg";
-export { FormHandler } from "./form-handler";
+export { DebugErrorModal } from "./DebugErrorModal";
+export { FormHandler } from "./FormHandler";

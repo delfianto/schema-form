@@ -1,3 +1,3 @@
+export * from "./definitions";
 export * from "./loader";
-export * from "./schema";
 export * from "./types";

@@ -1,7 +1,7 @@
 import { type App, Modal, Setting } from "obsidian";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import { assertIsError } from "../utils/quirks";
-import { renderFromObject } from "./tree-renderer";
+import { renderFromObject } from "./treeRenderer";
 
 function errorToObject(error: Error): Record<string, unknown> {
   // Start with enumerable properties

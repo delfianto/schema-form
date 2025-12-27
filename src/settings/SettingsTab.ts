@@ -1,7 +1,7 @@
 import { type App, PluginSettingTab, Setting, SuggestModal, TFolder } from "obsidian";
 import type SchemaFormPlugin from "../main";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
-import { addDebugSection } from "./debug-ui";
+import { addDebugSection } from "./DebugSettingsUI";
 
 export class SchemaFormSettingTab extends PluginSettingTab {
   plugin: SchemaFormPlugin;

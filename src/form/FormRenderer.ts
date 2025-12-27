@@ -12,7 +12,7 @@ import type {
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import * as Log from "../utils/logger";
 import { assertIsError } from "../utils/quirks";
-import type { FormState } from "./form-state";
+import type { FormState } from "./FormState";
 
 export class FormRenderer {
   private state: FormState;
