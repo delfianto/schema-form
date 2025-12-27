@@ -21,7 +21,9 @@ export class SchemaFormModal extends Modal {
     app: App,
     plugin: SchemaFormPlugin,
     schema: Schema,
-    onSubmit: (data: { data: Record<string, unknown>; label: Record<string, string> } | null) => void
+    onSubmit: (
+      data: { data: Record<string, unknown>; label: Record<string, string> } | null
+    ) => void
   ) {
     super(app);
     this.plugin = plugin;
