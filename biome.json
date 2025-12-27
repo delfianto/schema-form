@@ -37,6 +37,9 @@
         "useImportType": "error",
         "useConsistentArrayType": "error"
       },
+      "complexity": {
+        "useLiteralKeys": "off"
+      },
       "nursery": {
         "useSortedClasses": "error"
       }
