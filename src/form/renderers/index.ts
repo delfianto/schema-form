@@ -6,3 +6,4 @@ export * from "./ToggleFieldRenderer";
 export * from "./SelectFieldRenderer";
 export * from "./MultiSelectFieldRenderer";
 export * from "./DateFieldRenderer";
+export * from "./DefaultRenderer";

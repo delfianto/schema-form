@@ -1,4 +1,4 @@
-import { type App, Modal, Setting } from "obsidian";
+import { type App, Modal, Notice, Setting } from "obsidian";
 import type SchemaFormPlugin from "../main";
 import type { Schema } from "../schema";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
@@ -22,8 +22,8 @@ export class SchemaFormModal extends Modal {
     plugin: SchemaFormPlugin,
     schema: Schema,
     onSubmit: (
-      data: { data: Record<string, unknown>; label: Record<string, string> } | null
-    ) => void
+      data: { data: Record<string, unknown>; label: Record<string, string> } | null,
+    ) => void,
   ) {
     super(app);
     this.plugin = plugin;
@@ -73,7 +73,7 @@ export class SchemaFormModal extends Modal {
           btn
             .setButtonText("Submit")
             .setCta()
-            .onClick(() => this.handleSubmit())
+            .onClick(() => this.handleSubmit()),
         )
         .addButton((btn) => btn.setButtonText("Cancel").onClick(() => this.close()));
     } catch (error) {
@@ -84,12 +84,20 @@ export class SchemaFormModal extends Modal {
       });
 
       new Setting(contentEl).addButton((btn) =>
-        btn.setButtonText("Close").onClick(() => this.close())
+        btn.setButtonText("Close").onClick(() => this.close()),
       );
     }
   }
 
   handleSubmit() {
+    const { isValid, errors } = this.formState.validateAll();
+
+    if (!isValid) {
+      new Notice("Please fix the errors in the form before submitting.");
+      this.debugLog("Validation failed:", errors);
+      return;
+    }
+
     const formData = this.formState.getAllData() as {
       data: Record<string, unknown>;
       label: Record<string, string>;

@@ -3,6 +3,7 @@ import { type App, TFile, TFolder } from "obsidian";
 import { assertIsError } from "../utils/quirks";
 import { FormSchema, type Schema } from "./definitions";
 import { ErrorCode, SchemaError } from "./error";
+import * as Log from "../utils/logger";
 
 function parseSchema(lang: string, code: string): Schema {
   let parsed: unknown;
@@ -110,34 +111,25 @@ export async function loadSchema(app: App, file: TFile): Promise<Schema> {
 }
 
 /**
- * Loads a schema with optional retries and a fallback schema in case of failure.
+ * Loads a schema with an optional fallback schema in case of failure.
  */
 export async function loadSchemaWithFallback(
   app: App,
   file: TFile,
-  options?: { maxRetries?: number; fallbackSchema?: Schema },
+  options?: { fallbackSchema?: Schema },
 ): Promise<Schema> {
-  const maxRetries = options?.maxRetries ?? 1;
-  let lastError: Error | undefined;
+  try {
+    return await loadSchema(app, file);
+  } catch (error) {
+    assertIsError(error);
+    Log.warn(`Failed to load schema from '${file.path}': ${error.message}`);
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await loadSchema(app, file);
-    } catch (error) {
-      assertIsError(error);
-      lastError = error;
-      if (attempt < maxRetries) {
-        // Exponential backoff or simple delay can be added here if needed
-        await new Promise((resolve) => setTimeout(resolve, attempt * 500));
-      }
+    if (options?.fallbackSchema) {
+      return options.fallbackSchema;
     }
-  }
 
-  if (options?.fallbackSchema) {
-    return options.fallbackSchema;
+    throw error;
   }
-
-  throw lastError || new Error("Failed to load schema");
 }
 
 export async function listFiles(app: App, schemaPath: string): Promise<TFile[]> {

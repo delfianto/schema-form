@@ -5,6 +5,7 @@ import { wrapWithErrorBoundary } from "./ErrorBoundary";
 import type { FormState } from "./FormState";
 import {
   DateFieldRenderer,
+  DefaultRenderer,
   type FieldRendererStrategy,
   MultiSelectFieldRenderer,
   NumberFieldRenderer,
@@ -18,6 +19,7 @@ export class FormRenderer {
   private state: FormState;
   private elements: Map<string, HTMLElement> = new Map();
   private strategies: FieldRendererStrategy[];
+  private defaultStrategy: FieldRendererStrategy;
 
   constructor(formState: FormState) {
     this.state = formState;
@@ -30,6 +32,7 @@ export class FormRenderer {
       new MultiSelectFieldRenderer(),
       new DateFieldRenderer(),
     ];
+    this.defaultStrategy = new DefaultRenderer();
   }
 
   renderSchema(container: HTMLElement, schema: Schema): void {
@@ -58,13 +61,12 @@ export class FormRenderer {
 
     this.addValidatorForField(field);
 
-    const strategy = this.strategies.find((s) => s.supports(field.type));
+    const strategy = this.getStrategy(field.type);
+    strategy.render(fieldContainer, field, this.state);
+  }
 
-    if (strategy) {
-      strategy.render(fieldContainer, field, this.state);
-    } else {
-      this.renderUnknownField(fieldContainer, field);
-    }
+  private getStrategy(type: string): FieldRendererStrategy {
+    return this.strategies.find((s) => s.supports(type)) || this.defaultStrategy;
   }
 
   getFieldElement(fieldName: string): HTMLElement | undefined {
@@ -78,28 +80,9 @@ export class FormRenderer {
     });
   }
 
-  private renderUnknownField(container: HTMLElement, field: Field): void {
-    container.createEl("div", {
-      text: `Unknown field type: ${field.type} for field "${field.name}"`,
-      cls: cssClass(SCHEMA_FORM_STYLE.FORM_ERROR),
-    });
-  }
-
   private addValidatorForField(field: Field): void {
-    const strategy = this.strategies.find((s) => s.supports(field.type));
-
-    if (strategy) {
-      this.state.addValidator(field.name, (value) => strategy.getValidator(field)(value));
-    } else {
-      // Basic required check fallback for unknown fields
-      this.state.addValidator(field.name, (value) => {
-        const errors: string[] = [];
-        if (field.required && (value === undefined || value === null || value === "")) {
-          errors.push(`${field.label || field.name} is required`);
-        }
-        return errors;
-      });
-    }
+    const strategy = this.getStrategy(field.type);
+    this.state.addValidator(field.name, (value) => strategy.getValidator(field)(value));
   }
 
   private setupDefaults(schema: Schema): void {

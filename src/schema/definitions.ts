@@ -20,6 +20,7 @@ export const TextField = BaseField.extend({
   minLength: z.number().optional(),
   maxLength: z.number().optional(),
   placeholder: z.string().optional(),
+  default: z.string().optional(),
 });
 
 /**
@@ -30,6 +31,7 @@ export const TextAreaField = BaseField.extend({
   rows: z.number().optional(),
   maxLength: z.number().optional(),
   placeholder: z.string().optional(),
+  default: z.string().optional(),
 });
 
 /**
@@ -41,6 +43,7 @@ export const NumberField = BaseField.extend({
   max: z.number().optional(),
   step: z.number().optional(),
   placeholder: z.string().optional(),
+  default: z.number().optional(),
 });
 
 /**
@@ -68,6 +71,7 @@ export const SelectOptionSchema = z.union([
 export const SelectField = BaseField.extend({
   type: z.literal("SELECT"),
   options: z.array(SelectOptionSchema).min(1, "Select options cannot be empty"),
+  default: z.string().optional(),
 });
 
 /**
@@ -76,6 +80,7 @@ export const SelectField = BaseField.extend({
 export const MultiSelectField = SelectField.extend({
   type: z.literal("MULTI_SELECT"),
   maxSelections: z.number().optional(),
+  default: z.array(z.string()).optional(),
 });
 
 /**
@@ -86,6 +91,7 @@ export const DateField = BaseField.extend({
   minDate: z.string().optional(),
   maxDate: z.string().optional(),
   format: z.string().optional(),
+  default: z.string().optional(),
 });
 
 /**
