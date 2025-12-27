@@ -1,9 +1,13 @@
 import { Setting } from "obsidian";
+import { z } from "zod";
 import type { SelectField } from "../../schema/definitions";
 import type { FormState } from "../FormState";
 import { BaseFieldRenderer, type FieldRendererStrategy } from "./types";
 
-export class SelectFieldRenderer extends BaseFieldRenderer implements FieldRendererStrategy {
+export class SelectFieldRenderer
+  extends BaseFieldRenderer
+  implements FieldRendererStrategy<SelectField>
+{
   supports(type: string): boolean {
     return type === "SELECT";
   }
@@ -38,8 +42,27 @@ export class SelectFieldRenderer extends BaseFieldRenderer implements FieldRende
   }
 
   getValidator(field: SelectField): (value: unknown) => string[] {
+    const options = field.options.map((o) => (typeof o === "string" ? o : o.value));
+    let schema: z.ZodTypeAny = z.string();
+
+    if (options.length > 0) {
+      schema = z.enum(options as [string, ...string[]]);
+    }
+
+    let finalSchema: z.ZodTypeAny = schema;
+
+    if (!field.required) {
+      finalSchema = schema.optional().or(z.literal("")).or(z.null());
+    } else {
+      finalSchema = schema.refine((val) => val !== undefined && val !== null && val !== "", {
+        message: "This field is required",
+      });
+    }
+
     return (value: unknown) => {
-      return this.validateRequired(field, value);
+      const result = finalSchema.safeParse(value);
+      if (result.success) return [];
+      return result.error.issues.map((e) => e.message);
     };
   }
 }

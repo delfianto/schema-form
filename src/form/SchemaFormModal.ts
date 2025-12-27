@@ -1,5 +1,4 @@
 import { type App, Modal, Notice, Setting } from "obsidian";
-import type SchemaFormPlugin from "../main";
 import type { Schema } from "../schema";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import * as Log from "../utils/logger";
@@ -10,7 +9,6 @@ export class SchemaFormModal extends Modal {
   formState: FormState;
   formRenderer: FormRenderer;
 
-  plugin: SchemaFormPlugin;
   schema: Schema;
 
   fieldElements: Map<string, HTMLElement> = new Map();
@@ -19,14 +17,12 @@ export class SchemaFormModal extends Modal {
 
   constructor(
     app: App,
-    plugin: SchemaFormPlugin,
     schema: Schema,
     onSubmit: (
-      data: { data: Record<string, unknown>; label: Record<string, string> } | null,
-    ) => void,
+      data: { data: Record<string, unknown>; label: Record<string, string> } | null
+    ) => void
   ) {
     super(app);
-    this.plugin = plugin;
     this.formState = new FormState();
     this.formRenderer = new FormRenderer(this.formState);
 
@@ -73,7 +69,7 @@ export class SchemaFormModal extends Modal {
           btn
             .setButtonText("Submit")
             .setCta()
-            .onClick(() => this.handleSubmit()),
+            .onClick(() => this.handleSubmit())
         )
         .addButton((btn) => btn.setButtonText("Cancel").onClick(() => this.close()));
     } catch (error) {
@@ -84,7 +80,7 @@ export class SchemaFormModal extends Modal {
       });
 
       new Setting(contentEl).addButton((btn) =>
-        btn.setButtonText("Close").onClick(() => this.close()),
+        btn.setButtonText("Close").onClick(() => this.close())
       );
     }
   }
@@ -103,10 +99,6 @@ export class SchemaFormModal extends Modal {
       label: Record<string, string>;
     };
     this.isSubmitted = true;
-
-    if (this.plugin && typeof this.plugin.submitFormData === "function") {
-      this.plugin.submitFormData(formData);
-    }
 
     this.onSubmit(formData);
     this.close();

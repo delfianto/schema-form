@@ -1,9 +1,13 @@
 import { Setting } from "obsidian";
+import { z } from "zod";
 import type { ToggleField } from "../../schema/definitions";
 import type { FormState } from "../FormState";
 import { BaseFieldRenderer, type FieldRendererStrategy } from "./types";
 
-export class ToggleFieldRenderer extends BaseFieldRenderer implements FieldRendererStrategy {
+export class ToggleFieldRenderer
+  extends BaseFieldRenderer
+  implements FieldRendererStrategy<ToggleField>
+{
   supports(type: string): boolean {
     return type === "TOGGLE";
   }
@@ -26,9 +30,13 @@ export class ToggleFieldRenderer extends BaseFieldRenderer implements FieldRende
     }
   }
 
-  getValidator(field: ToggleField): (value: unknown) => string[] {
+  getValidator(_field: ToggleField): (value: unknown) => string[] {
+    const schema = z.boolean();
+
     return (value: unknown) => {
-      return this.validateRequired(field, value);
+      const result = schema.safeParse(value);
+      if (result.success) return [];
+      return result.error.issues.map((e) => e.message);
     };
   }
 }

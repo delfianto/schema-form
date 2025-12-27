@@ -19,14 +19,14 @@ export interface SCFApi {
    * @param fieldName The name of the field to retrieve.
    * @returns The value of the field, or null if not found.
    */
-  readonly value: (fieldName: string) => unknown;
+  readonly value: (fieldName: string) => unknown | null;
 
   /**
    * Retrieves the label of a specific form field from the last submission.
    * @param fieldName The name of the field.
-   * @returns The label of the field, or the fieldName if no label is found.
+   * @returns The label of the field, or null if no label is found.
    */
-  readonly label: (fieldName: string) => string;
+  readonly label: (fieldName: string) => string | null;
 
   /**
    * Checks if there is any data from a previous form submission.
@@ -53,12 +53,12 @@ export type FormData = Record<string, unknown> & { readonly __brand: "FormData" 
 class SCFApiImpl implements SCFApi {
   constructor(private readonly plugin: SchemaFormPlugin) {}
 
-  value = (fieldName: string): unknown => {
+  value = (fieldName: string): unknown | null => {
     return this.plugin.formData[fieldName] ?? null;
   };
 
-  label = (fieldName: string): string => {
-    return this.plugin.labelData[fieldName] ?? fieldName;
+  label = (fieldName: string): string | null => {
+    return this.plugin.labelData[fieldName] ?? null;
   };
 
   hasData = (): boolean => {
@@ -90,21 +90,15 @@ class SCFApiImpl implements SCFApi {
   };
 }
 
-let apiInstance: SCFApi | null = null;
-
 export function getApi(plugin: SchemaFormPlugin): SCFApi {
-  if (!apiInstance) {
-    apiInstance = new SCFApiImpl(plugin);
-  }
-  return apiInstance;
+  // Always return a fresh API instance tied to the current plugin instance
+  // to avoid issues with stale closures during hot reloads
+  return new SCFApiImpl(plugin);
 }
 
 export function registerApi(plugin: SchemaFormPlugin): void {
-  if (window.scf) {
-    Log.warn("SCF API already registered, skipping...");
-    return;
-  }
-
+  // If window.scf exists, we overwrite it with the new plugin instance's API
+  // This is better for Obsidian hot-reloading
   window.scf = getApi(plugin);
   plugin.isApiExposed = true;
 
@@ -114,7 +108,6 @@ export function registerApi(plugin: SchemaFormPlugin): void {
 export function unregisterApi(): void {
   if (window.scf) {
     delete window.scf;
-    apiInstance = null;
     Log.info("🧹 SCF API unregistered");
   }
 }

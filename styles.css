@@ -40,3 +40,30 @@
 .scmf-schema-dir-status-err {
 	color: var(--text-error);
 }
+
+/* Multi-select field styles */
+.scmf-multi-select-container {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 8px;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.scmf-multi-select-row {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+  gap: 8px;
+}
+
+.scmf-multi-select-row input[type="checkbox"] {
+  cursor: pointer;
+}
+
+.scmf-multi-select-row label {
+  cursor: pointer;
+  flex: 1;
+}

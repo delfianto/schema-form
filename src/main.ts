@@ -1,5 +1,15 @@
 import { Plugin } from "obsidian";
 import { registerApi, unregisterApi } from "./api";
+import { RendererRegistry } from "./form/RendererRegistry";
+import {
+  DateFieldRenderer,
+  MultiSelectFieldRenderer,
+  NumberFieldRenderer,
+  SelectFieldRenderer,
+  TextAreaFieldRenderer,
+  TextFieldRenderer,
+  ToggleFieldRenderer,
+} from "./form/renderers";
 import * as Settings from "./settings";
 import * as Log from "./utils/logger";
 
@@ -33,13 +43,26 @@ export default class SchemaFormPlugin extends Plugin {
     Log.initialize(this.settings);
     Log.debug("Settings loaded: ", this.settings);
 
+    this.registerRenderers();
+
     this.addSettingTab(new Settings.SchemaFormSettingTab(this));
 
     registerApi(this);
   }
 
+  private registerRenderers() {
+    RendererRegistry.register(new TextFieldRenderer());
+    RendererRegistry.register(new TextAreaFieldRenderer());
+    RendererRegistry.register(new NumberFieldRenderer());
+    RendererRegistry.register(new ToggleFieldRenderer());
+    RendererRegistry.register(new SelectFieldRenderer());
+    RendererRegistry.register(new MultiSelectFieldRenderer());
+    RendererRegistry.register(new DateFieldRenderer());
+  }
+
   async onunload() {
     unregisterApi();
+    RendererRegistry.clear();
     Log.info("Schema Form Plugin unloaded");
   }
 

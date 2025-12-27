@@ -10,12 +10,10 @@ import { SchemaFormModal } from "./SchemaFormModal";
 
 export class FormHandler {
   private app: App;
-  private plugin: SchemaFormPlugin;
   private schemaDir: string;
 
   constructor(plugin: SchemaFormPlugin, schemaDir: string = "") {
     this.app = plugin.app;
-    this.plugin = plugin;
     this.schemaDir = schemaDir;
   }
 
@@ -88,7 +86,7 @@ export class FormHandler {
     schema: Schema
   ): Promise<{ data: Record<string, unknown>; label: Record<string, string> } | null> {
     return new Promise((resolve) => {
-      new SchemaFormModal(this.app, this.plugin, schema, (data) => {
+      new SchemaFormModal(this.app, schema, (data) => {
         resolve(data);
       }).open();
     });

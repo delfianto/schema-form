@@ -4,7 +4,7 @@ import type { FormState } from "../FormState";
 /**
  * Interface for field rendering strategies.
  */
-export interface FieldRendererStrategy {
+export interface FieldRendererStrategy<T extends Field = Field> {
   /**
    * Returns true if this renderer handles the given field type.
    */
@@ -13,12 +13,12 @@ export interface FieldRendererStrategy {
   /**
    * Renders the field into the container.
    */
-  render(container: HTMLElement, field: Field, state: FormState): void;
+  render(container: HTMLElement, field: T, state: FormState): void;
 
   /**
    * Returns a validation function for this field.
    */
-  getValidator(field: Field): (value: unknown) => string[];
+  getValidator(field: T): (value: unknown) => string[];
 }
 
 /**

@@ -1,10 +1,14 @@
 import { Setting } from "obsidian";
+import { z } from "zod";
 import type { MultiSelectField } from "../../schema/definitions";
 import { cssClass, SCHEMA_FORM_STYLE } from "../../style";
 import type { FormState } from "../FormState";
 import { BaseFieldRenderer, type FieldRendererStrategy } from "./types";
 
-export class MultiSelectFieldRenderer extends BaseFieldRenderer implements FieldRendererStrategy {
+export class MultiSelectFieldRenderer
+  extends BaseFieldRenderer
+  implements FieldRendererStrategy<MultiSelectField>
+{
   supports(type: string): boolean {
     return type === "MULTI_SELECT";
   }
@@ -43,14 +47,33 @@ export class MultiSelectFieldRenderer extends BaseFieldRenderer implements Field
   }
 
   getValidator(field: MultiSelectField): (value: unknown) => string[] {
+    const validOptions = field.options.map((o) => (typeof o === "string" ? o : o.value));
+    let schema: z.ZodTypeAny = z.array(z.string());
+
+    if (validOptions.length > 0) {
+      schema = z.array(z.enum(validOptions as [string, ...string[]]));
+    }
+
+    let finalSchema: z.ZodTypeAny = schema;
+
+    if (field.required) {
+      finalSchema = (schema as z.ZodArray<z.ZodTypeAny>).min(
+        1,
+        "At least one option must be selected"
+      );
+    }
+
+    if (field.maxSelections) {
+      finalSchema = (finalSchema as z.ZodArray<z.ZodTypeAny>).max(
+        field.maxSelections,
+        `Maximum ${field.maxSelections} selections allowed`
+      );
+    }
+
     return (value: unknown) => {
-      const errors = this.validateRequired(field, value);
-      if (Array.isArray(value)) {
-        if (field.maxSelections && value.length > field.maxSelections) {
-          errors.push(`Maximum ${field.maxSelections} selections allowed`);
-        }
-      }
-      return errors;
+      const result = finalSchema.safeParse(value || []);
+      if (result.success) return [];
+      return result.error.issues.map((e) => e.message);
     };
   }
 }

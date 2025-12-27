@@ -3,36 +3,15 @@ import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import * as Log from "../utils/logger";
 import { wrapWithErrorBoundary } from "./ErrorBoundary";
 import type { FormState } from "./FormState";
-import {
-  DateFieldRenderer,
-  DefaultRenderer,
-  type FieldRendererStrategy,
-  MultiSelectFieldRenderer,
-  NumberFieldRenderer,
-  SelectFieldRenderer,
-  TextAreaFieldRenderer,
-  TextFieldRenderer,
-  ToggleFieldRenderer,
-} from "./renderers";
+import { RendererRegistry } from "./RendererRegistry";
+import type { FieldRendererStrategy } from "./renderers/types";
 
 export class FormRenderer {
   private state: FormState;
   private elements: Map<string, HTMLElement> = new Map();
-  private strategies: FieldRendererStrategy[];
-  private defaultStrategy: FieldRendererStrategy;
 
   constructor(formState: FormState) {
     this.state = formState;
-    this.strategies = [
-      new TextFieldRenderer(),
-      new TextAreaFieldRenderer(),
-      new NumberFieldRenderer(),
-      new ToggleFieldRenderer(),
-      new SelectFieldRenderer(),
-      new MultiSelectFieldRenderer(),
-      new DateFieldRenderer(),
-    ];
-    this.defaultStrategy = new DefaultRenderer();
   }
 
   renderSchema(container: HTMLElement, schema: Schema): void {
@@ -65,8 +44,8 @@ export class FormRenderer {
     strategy.render(fieldContainer, field, this.state);
   }
 
-  private getStrategy(type: string): FieldRendererStrategy {
-    return this.strategies.find((s) => s.supports(type)) || this.defaultStrategy;
+  private getStrategy(type: string): FieldRendererStrategy<Field> {
+    return RendererRegistry.getStrategy(type);
   }
 
   getFieldElement(fieldName: string): HTMLElement | undefined {

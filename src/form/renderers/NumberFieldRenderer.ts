@@ -1,9 +1,13 @@
 import { debounce, Setting } from "obsidian";
+import { z } from "zod";
 import type { NumberField } from "../../schema/definitions";
 import type { FormState } from "../FormState";
 import { BaseFieldRenderer, type FieldRendererStrategy } from "./types";
 
-export class NumberFieldRenderer extends BaseFieldRenderer implements FieldRendererStrategy {
+export class NumberFieldRenderer
+  extends BaseFieldRenderer
+  implements FieldRendererStrategy<NumberField>
+{
   supports(type: string): boolean {
     return type === "NUMBER";
   }
@@ -36,17 +40,33 @@ export class NumberFieldRenderer extends BaseFieldRenderer implements FieldRende
   }
 
   getValidator(field: NumberField): (value: unknown) => string[] {
+    let schema: z.ZodNumber = z.number();
+
+    if (field.min !== undefined) {
+      schema = schema.min(field.min, `Minimum value is ${field.min}`);
+    }
+    if (field.max !== undefined) {
+      schema = schema.max(field.max, `Maximum value is ${field.max}`);
+    }
+
+    let finalSchema: z.ZodType<unknown> = schema;
+
+    if (!field.required) {
+      finalSchema = schema.optional().or(z.null()).or(z.undefined());
+    } else {
+      finalSchema = schema.refine((val) => val !== undefined && val !== null, {
+        message: "This field is required",
+      });
+    }
+
     return (value: unknown) => {
-      const errors = this.validateRequired(field, value);
-      if (typeof value === "number") {
-        if (field.min !== undefined && value < field.min) {
-          errors.push(`Minimum value is ${field.min}`);
-        }
-        if (field.max !== undefined && value > field.max) {
-          errors.push(`Maximum value is ${field.max}`);
-        }
+      // Handle empty string from input if not required
+      if (!field.required && (value === "" || value === undefined || value === null)) {
+        return [];
       }
-      return errors;
+      const result = finalSchema.safeParse(value);
+      if (result.success) return [];
+      return result.error.issues.map((e) => e.message);
     };
   }
 }

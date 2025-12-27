@@ -1,9 +1,9 @@
 import * as yaml from "js-yaml";
 import { type App, TFile, TFolder } from "obsidian";
+import * as Log from "../utils/logger";
 import { assertIsError } from "../utils/quirks";
 import { FormSchema, type Schema } from "./definitions";
 import { ErrorCode, SchemaError } from "./error";
-import * as Log from "../utils/logger";
 
 function parseSchema(lang: string, code: string): Schema {
   let parsed: unknown;
@@ -116,7 +116,7 @@ export async function loadSchema(app: App, file: TFile): Promise<Schema> {
 export async function loadSchemaWithFallback(
   app: App,
   file: TFile,
-  options?: { fallbackSchema?: Schema },
+  options?: { fallbackSchema?: Schema }
 ): Promise<Schema> {
   try {
     return await loadSchema(app, file);
@@ -143,7 +143,7 @@ export async function listFiles(app: App, schemaPath: string): Promise<TFile[]> 
   }
 
   const schemaFiles = folder.children.filter(
-    (f) => f instanceof TFile && f.extension === "md",
+    (f) => f instanceof TFile && f.extension === "md"
   ) as TFile[];
 
   if (schemaFiles.length === 0) {
