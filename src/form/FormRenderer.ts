@@ -1,4 +1,4 @@
-import { Setting } from "obsidian";
+import { debounce, Setting } from "obsidian";
 import type {
   DateField,
   Field,
@@ -103,9 +103,11 @@ export class FormRenderer {
       text
         .setPlaceholder(this.placeholder(field))
         .setValue(this.stateValue(field))
-        .onChange((value) => {
-          this.state.setValue(field.name, value);
-        });
+        .onChange(
+          debounce((value) => {
+            this.state.setValue(field.name, value);
+          }, 300)
+        );
     });
   }
 
@@ -116,9 +118,11 @@ export class FormRenderer {
       textarea
         .setPlaceholder(this.placeholder(field))
         .setValue(this.stateValue(field))
-        .onChange((value) => {
-          this.state.setValue(field.name, value);
-        });
+        .onChange(
+          debounce((value) => {
+            this.state.setValue(field.name, value);
+          }, 300)
+        );
     });
   }
 
@@ -137,9 +141,11 @@ export class FormRenderer {
         text.inputEl.max = String(field.max);
       }
 
-      text.onChange((value) => {
-        this.state.setValue(field.name, value ? Number(value) : undefined);
-      });
+      text.onChange(
+        debounce((value) => {
+          this.state.setValue(field.name, value ? Number(value) : undefined);
+        }, 300)
+      );
     });
   }
 

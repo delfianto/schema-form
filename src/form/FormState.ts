@@ -1,4 +1,3 @@
-import { debounce } from "obsidian";
 import { sanitizeFormValue } from "../utils/sanitize";
 
 export class FormState {
@@ -8,8 +7,6 @@ export class FormState {
   private validators: Map<string, (value: unknown) => string[]> = new Map();
   private changeListeners: Map<string, Set<(value: unknown) => void>> = new Map();
   private validationListeners: Set<() => void> = new Set();
-
-  private debouncedNotifyValidation = debounce(() => this.notifyValidationListeners(), 300, true);
 
   constructor(init: Record<string, unknown> = {}) {
     this.data = { ...init };
@@ -26,7 +23,7 @@ export class FormState {
 
     if (oldValue !== sanitizedValue) {
       this.notifyFieldListeners(fieldName, sanitizedValue);
-      this.debouncedNotifyValidation();
+      this.notifyValidationListeners();
     }
   }
 

@@ -5,13 +5,26 @@ import * as Log from "./utils/logger";
 
 export default class SchemaFormPlugin extends Plugin {
   settings!: Settings.SchemaFormSettings;
-  formData: Record<string, unknown> = {};
-  labelData: Record<string, string> = {};
+  private _formData: Record<string, unknown> = {};
+  private _labelData: Record<string, string> = {};
   isApiExposed: boolean = false;
 
-  submitFormData(submitted: Record<string, unknown>) {
-    this.formData = submitted["data"] as Record<string, unknown>;
-    this.labelData = submitted["label"] as Record<string, string>;
+  get formData(): Record<string, unknown> {
+    return { ...this._formData };
+  }
+
+  get labelData(): Record<string, string> {
+    return { ...this._labelData };
+  }
+
+  submitFormData(submitted: { data: Record<string, unknown>; label: Record<string, string> }) {
+    this._formData = { ...submitted.data };
+    this._labelData = { ...submitted.label };
+  }
+
+  resetData() {
+    this._formData = {};
+    this._labelData = {};
   }
 
   async onload() {

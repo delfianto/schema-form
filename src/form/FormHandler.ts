@@ -19,13 +19,29 @@ export class FormHandler {
     this.schemaDir = schemaDir;
   }
 
-  async showForm() {
+  async showForm(
+    schemaName?: string
+  ): Promise<{ data: Record<string, unknown>; label: Record<string, string> } | null> {
     try {
       const schemaFiles = await listFiles(this.app, this.schemaDir);
-      const selectedFile = await this.displaySelector(schemaFiles);
+      let selectedFile: TFile | null = null;
+
+      if (schemaName) {
+        selectedFile =
+          schemaFiles.find(
+            (f) =>
+              f.basename.toLowerCase() === schemaName.toLowerCase() ||
+              f.name.toLowerCase() === schemaName.toLowerCase()
+          ) || null;
+
+        if (!selectedFile) {
+          throw new Error(`Schema "${schemaName}" not found in ${this.schemaDir}`);
+        }
+      } else {
+        selectedFile = await this.displaySelector(schemaFiles);
+      }
 
       if (!selectedFile) {
-        new Notice("No file selected");
         return null;
       }
 
@@ -68,7 +84,9 @@ export class FormHandler {
     });
   }
 
-  private displayModalForm(schema: Schema): Promise<Record<string, unknown> | null> {
+  private displayModalForm(
+    schema: Schema
+  ): Promise<{ data: Record<string, unknown>; label: Record<string, string> } | null> {
     return new Promise((resolve) => {
       new SchemaFormModal(this.app, this.plugin, schema, (data) => {
         resolve(data);

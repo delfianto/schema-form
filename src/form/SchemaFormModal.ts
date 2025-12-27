@@ -1,4 +1,4 @@
-import { type App, Modal, Notice, Setting } from "obsidian";
+import { type App, Modal, Setting } from "obsidian";
 import type SchemaFormPlugin from "../main";
 import type { Schema } from "../schema";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
@@ -14,14 +14,14 @@ export class SchemaFormModal extends Modal {
   schema: Schema;
 
   fieldElements: Map<string, HTMLElement> = new Map();
-  onSubmit: (data: Record<string, unknown> | null) => void;
+  onSubmit: (data: { data: Record<string, unknown>; label: Record<string, string> } | null) => void;
   isSubmitted: boolean = false;
 
   constructor(
     app: App,
     plugin: SchemaFormPlugin,
     schema: Schema,
-    onSubmit: (data: Record<string, unknown> | null) => void
+    onSubmit: (data: { data: Record<string, unknown>; label: Record<string, string> } | null) => void
   ) {
     super(app);
     this.plugin = plugin;
@@ -88,7 +88,10 @@ export class SchemaFormModal extends Modal {
   }
 
   handleSubmit() {
-    const formData = this.formState.getAllData();
+    const formData = this.formState.getAllData() as {
+      data: Record<string, unknown>;
+      label: Record<string, string>;
+    };
     this.isSubmitted = true;
 
     if (this.plugin && typeof this.plugin.submitFormData === "function") {
@@ -102,8 +105,7 @@ export class SchemaFormModal extends Modal {
   onClose() {
     this.contentEl.empty();
     if (!this.isSubmitted) {
-      new Notice("Dialog closed, returning empty object.");
-      this.onSubmit({});
+      this.onSubmit(null);
     }
   }
 }

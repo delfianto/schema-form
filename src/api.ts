@@ -65,19 +65,18 @@ class SCFApiImpl implements SCFApi {
     return Object.keys(this.plugin.formData).length > 0;
   };
 
-  triggerForm = async (): Promise<FormData> => {
+  triggerForm = async (schemaName?: string): Promise<FormData> => {
     try {
       const formHandler = new FormHandler(this.plugin, this.plugin.settings.schemaDir);
 
-      this.reset();
-      const result = await formHandler.showForm();
+      const result = await formHandler.showForm(schemaName);
 
       if (!result) {
-        throw new FormError("Form was cancelled or returned no data");
+        throw new FormError("Form cancelled by user");
       }
 
       this.plugin.submitFormData(result);
-      return result as FormData;
+      return result as unknown as FormData;
     } catch (error) {
       if (error instanceof Error) {
         throw new FormError(`Failed to trigger form: ${error.message}`, error);
@@ -87,8 +86,7 @@ class SCFApiImpl implements SCFApi {
   };
 
   reset = (): void => {
-    this.plugin.formData = {};
-    this.plugin.labelData = {};
+    this.plugin.resetData();
   };
 }
 
