@@ -1,6 +1,7 @@
 import { debounce, Setting } from "obsidian";
 import { z } from "zod";
 import type { TextField } from "../../schema/definitions";
+import * as Log from "../../utils/logger";
 import type { FormState } from "../FormState";
 import { BaseFieldRenderer, type FieldRendererStrategy } from "./types";
 
@@ -22,7 +23,7 @@ export class TextFieldRenderer
         .onChange(
           debounce((value) => {
             state.setValue(field.name, value);
-          }, 300)
+          }, 300),
         );
     });
   }
@@ -47,8 +48,11 @@ export class TextFieldRenderer
     if (field.regex) {
       try {
         schema = schema.regex(new RegExp(field.regex), "Invalid format");
-      } catch (_e) {
-        // Ignore invalid regex
+      } catch (error) {
+        Log.debug(
+          `TextFieldRenderer: Invalid regex "${field.regex}" for field "${field.name}":`,
+          error,
+        );
       }
     }
 
