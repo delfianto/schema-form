@@ -22,9 +22,11 @@ export class TextAreaFieldRenderer
         .onChange(
           debounce((value) => {
             state.setValue(field.name, value);
-          }, 300)
+          }, 300),
         );
     });
+
+    this.setupErrorFeedback(container, field, state, setting);
   }
 
   getValidator(field: TextAreaField): (value: unknown) => string[] {

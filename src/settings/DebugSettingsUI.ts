@@ -16,7 +16,7 @@ export function addDebugSection(container: HTMLElement, plugin: SchemaFormPlugin
         .setWarning()
         .onClick(() => {
           debugModals.basicError(plugin.app);
-        })
+        }),
     );
 
   new Setting(container)
@@ -29,7 +29,7 @@ export function addDebugSection(container: HTMLElement, plugin: SchemaFormPlugin
         .setCta()
         .onClick(() => {
           debugModals.parseError(plugin.app);
-        })
+        }),
     );
 
   new Setting(container)
@@ -42,7 +42,7 @@ export function addDebugSection(container: HTMLElement, plugin: SchemaFormPlugin
         .setCta()
         .onClick(() => {
           debugModals.complexError(plugin.app);
-        })
+        }),
     );
 
   new Setting(container)
@@ -57,7 +57,7 @@ export function addDebugSection(container: HTMLElement, plugin: SchemaFormPlugin
           const formHandler = new FormHandler(plugin, plugin.settings.schemaDir);
           const formData = await formHandler.showForm();
           console.log("Form result:", formData);
-        })
+        }),
     );
 }
 

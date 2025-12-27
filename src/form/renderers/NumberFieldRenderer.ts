@@ -34,9 +34,11 @@ export class NumberFieldRenderer
       text.onChange(
         debounce((value) => {
           state.setValue(field.name, value ? Number(value) : undefined);
-        }, 300)
+        }, 300),
       );
     });
+
+    this.setupErrorFeedback(container, field, state, setting);
   }
 
   getValidator(field: NumberField): (value: unknown) => string[] {

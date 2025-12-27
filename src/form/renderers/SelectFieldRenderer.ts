@@ -39,8 +39,9 @@ export class SelectFieldRenderer
         state.setValue(field.name, value);
       });
     });
-  }
 
+    this.setupErrorFeedback(container, field, state, setting);
+  }
   getValidator(field: SelectField): (value: unknown) => string[] {
     const options = field.options.map((o) => (typeof o === "string" ? o : o.value));
     let schema: z.ZodTypeAny = z.string();

@@ -26,6 +26,8 @@ export class TextFieldRenderer
           }, 300),
         );
     });
+
+    this.setupErrorFeedback(container, field, state, setting);
   }
 
   getValidator(field: TextField): (value: unknown) => string[] {

@@ -3,7 +3,7 @@ import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 export function renderFromObject(
   container: HTMLElement,
   obj: unknown,
-  label: string = "Root"
+  label: string = "Root",
 ): void {
   const isObject = obj !== null && typeof obj === "object";
   const isArray = Array.isArray(obj);

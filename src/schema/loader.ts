@@ -116,7 +116,7 @@ export async function loadSchema(app: App, file: TFile): Promise<Schema> {
 export async function loadSchemaWithFallback(
   app: App,
   file: TFile,
-  options?: { fallbackSchema?: Schema }
+  options?: { fallbackSchema?: Schema },
 ): Promise<Schema> {
   try {
     return await loadSchema(app, file);
@@ -143,7 +143,7 @@ export async function listFiles(app: App, schemaPath: string): Promise<TFile[]> 
   }
 
   const schemaFiles = folder.children.filter(
-    (f) => f instanceof TFile && f.extension === "md"
+    (f) => f instanceof TFile && f.extension === "md",
   ) as TFile[];
 
   if (schemaFiles.length === 0) {

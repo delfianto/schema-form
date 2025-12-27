@@ -19,8 +19,8 @@ export class SchemaFormModal extends Modal {
     app: App,
     schema: Schema,
     onSubmit: (
-      data: { data: Record<string, unknown>; label: Record<string, string> } | null
-    ) => void
+      data: { data: Record<string, unknown>; label: Record<string, string> } | null,
+    ) => void,
   ) {
     super(app);
     this.formState = new FormState();
@@ -69,7 +69,7 @@ export class SchemaFormModal extends Modal {
           btn
             .setButtonText("Submit")
             .setCta()
-            .onClick(() => this.handleSubmit())
+            .onClick(() => this.handleSubmit()),
         )
         .addButton((btn) => btn.setButtonText("Cancel").onClick(() => this.close()));
     } catch (error) {
@@ -80,7 +80,7 @@ export class SchemaFormModal extends Modal {
       });
 
       new Setting(contentEl).addButton((btn) =>
-        btn.setButtonText("Close").onClick(() => this.close())
+        btn.setButtonText("Close").onClick(() => this.close()),
       );
     }
   }

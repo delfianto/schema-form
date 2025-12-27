@@ -26,7 +26,7 @@ export class FormRenderer {
         (error) => {
           Log.error(`Error rendering field ${field.name}:`, error);
           this.renderErrorField(container, field, error.message);
-        }
+        },
       );
     });
   }
@@ -61,7 +61,12 @@ export class FormRenderer {
 
   private addValidatorForField(field: Field): void {
     const strategy = this.getStrategy(field.type);
-    this.state.addValidator(field.name, (value) => strategy.getValidator(field)(value));
+
+    // ✅ FIX: Call the factory ONCE to create the closure
+    const validator = strategy.getValidator(field);
+
+    // Pass the pre-compiled function to the state
+    this.state.addValidator(field.name, validator);
   }
 
   private setupDefaults(schema: Schema): void {

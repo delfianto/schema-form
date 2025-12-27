@@ -18,7 +18,7 @@ export class FormHandler {
   }
 
   async showForm(
-    schemaName?: string
+    schemaName?: string,
   ): Promise<{ data: Record<string, unknown>; label: Record<string, string> } | null> {
     try {
       const schemaFiles = await listFiles(this.app, this.schemaDir);
@@ -29,7 +29,7 @@ export class FormHandler {
           schemaFiles.find(
             (f) =>
               f.basename.toLowerCase() === schemaName.toLowerCase() ||
-              f.name.toLowerCase() === schemaName.toLowerCase()
+              f.name.toLowerCase() === schemaName.toLowerCase(),
           ) || null;
 
         if (!selectedFile) {
@@ -83,7 +83,7 @@ export class FormHandler {
   }
 
   private displayModalForm(
-    schema: Schema
+    schema: Schema,
   ): Promise<{ data: Record<string, unknown>; label: Record<string, string> } | null> {
     return new Promise((resolve) => {
       new SchemaFormModal(this.app, schema, (data) => {

@@ -67,3 +67,45 @@
   cursor: pointer;
   flex: 1;
 }
+
+/* Define semantic error colors based on Obsidian's theme */
+.schema-form-modal {
+  --scf-error-color: var(--text-error);
+  --scf-error-bg: var(--background-modifier-error);
+  --scf-error-border: var(--text-error);
+}
+
+/* The input field border when invalid */
+.has-error input,
+.has-error select,
+.has-error textarea {
+  border-color: var(--scf-error-border) !important;
+  box-shadow: 0 0 0 1px var(--scf-error-border);
+}
+
+/* The error message text below the field */
+.scf-error-message {
+  color: var(--scf-error-color);
+  font-size: var(--font-ui-smaller);
+  margin-top: 4px;
+  margin-left: 0; /* Align with input if possible */
+  line-height: 1.2;
+  display: none; /* Hidden by default */
+}
+
+/* Helper to show it */
+.scf-error-message.visible {
+  display: block;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

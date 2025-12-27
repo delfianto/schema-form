@@ -6,6 +6,7 @@ export class FormState {
 
   private validators: Map<string, (value: unknown) => string[]> = new Map();
   private changeListeners: Map<string, Set<(value: unknown) => void>> = new Map();
+  private errorListeners: Map<string, Set<(errors: string[]) => void>> = new Map();
   private validationListeners: Set<() => void> = new Set();
 
   constructor(init: Record<string, unknown> = {}) {
@@ -23,6 +24,11 @@ export class FormState {
 
     if (oldValue !== sanitizedValue) {
       this.notifyFieldListeners(fieldName, sanitizedValue);
+
+      // ✅ NEW: Run validation immediately on change
+      const errors = this.validateField(fieldName);
+      this.notifyErrorListeners(fieldName, errors);
+
       this.notifyValidationListeners();
     }
   }
@@ -85,12 +91,28 @@ export class FormState {
     this.validationListeners.add(listener);
   }
 
+  onErrorChange(fieldName: string, listener: (errors: string[]) => void): void {
+    if (!this.errorListeners.has(fieldName)) {
+      this.errorListeners.set(fieldName, new Set());
+    }
+    this.errorListeners.get(fieldName)?.add(listener);
+  }
+
   private notifyFieldListeners(fieldName: string, value: unknown): void {
     const listeners = this.changeListeners.get(fieldName);
 
     if (listeners) {
       listeners.forEach((listener) => {
         listener(value);
+      });
+    }
+  }
+
+  private notifyErrorListeners(fieldName: string, errors: string[]): void {
+    const listeners = this.errorListeners.get(fieldName);
+    if (listeners) {
+      listeners.forEach((listener) => {
+        listener(errors);
       });
     }
   }

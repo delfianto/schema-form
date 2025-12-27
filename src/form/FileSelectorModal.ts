@@ -25,7 +25,7 @@ export class FileSelectorModal extends Modal {
             .setCta()
             .onClick(() => {
               this.resolve(file);
-            })
+            }),
         );
     });
 
@@ -35,7 +35,7 @@ export class FileSelectorModal extends Modal {
         .setWarning()
         .onClick(() => {
           this.resolve();
-        })
+        }),
     );
   }
 

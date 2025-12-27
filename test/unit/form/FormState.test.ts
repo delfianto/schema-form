@@ -459,6 +459,37 @@ describe("FormState", () => {
 		});
 	});
 
+	describe("onErrorChange", () => {
+		test("should call error listener when field validation changes", () => {
+			const listener = mock((_errors: string[]) => {});
+			const validator = (value: unknown) => (value === "invalid" ? ["Invalid value"] : []);
+
+			state.addValidator("field", validator);
+			state.onErrorChange("field", listener);
+
+			state.setValue("field", "invalid");
+
+			expect(listener).toHaveBeenCalledTimes(1);
+			expect(listener).toHaveBeenCalledWith(["Invalid value"]);
+
+			state.setValue("field", "valid");
+			expect(listener).toHaveBeenCalledTimes(2);
+			expect(listener).toHaveBeenCalledWith([]);
+		});
+
+		test("should not call error listener when field value is same", () => {
+			const listener = mock((_errors: string[]) => {});
+			const validator = (value: unknown) => (value === "invalid" ? ["Invalid value"] : []);
+
+			state.addValidator("field", validator);
+			state.setValue("field", "invalid");
+			state.onErrorChange("field", listener);
+
+			state.setValue("field", "invalid");
+			expect(listener).not.toHaveBeenCalled();
+		});
+	});
+
 	describe("complex scenarios", () => {
 		test("should handle form workflow: init -> validate -> update -> validate", () => {
 			state.setValue("name", "");

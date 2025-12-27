@@ -14,7 +14,7 @@ export class MultiSelectFieldRenderer
   }
 
   render(container: HTMLElement, field: MultiSelectField, state: FormState): void {
-    new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
+    const setting = new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
 
     const optionsContainer = container.createDiv({
       cls: cssClass(SCHEMA_FORM_STYLE.MULTI_SELECT_CONTAINER || "multi-select-container"),
@@ -44,6 +44,8 @@ export class MultiSelectFieldRenderer
         });
       });
     }
+
+    this.setupErrorFeedback(container, field, state, setting);
   }
 
   getValidator(field: MultiSelectField): (value: unknown) => string[] {
@@ -59,14 +61,14 @@ export class MultiSelectFieldRenderer
     if (field.required) {
       finalSchema = (schema as z.ZodArray<z.ZodTypeAny>).min(
         1,
-        "At least one option must be selected"
+        "At least one option must be selected",
       );
     }
 
     if (field.maxSelections) {
       finalSchema = (finalSchema as z.ZodArray<z.ZodTypeAny>).max(
         field.maxSelections,
-        `Maximum ${field.maxSelections} selections allowed`
+        `Maximum ${field.maxSelections} selections allowed`,
       );
     }
 

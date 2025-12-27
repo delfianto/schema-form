@@ -28,6 +28,8 @@ export class ToggleFieldRenderer
     if (state.getValue(field.name) === undefined) {
       state.setValue(field.name, field.default ?? false);
     }
+
+    this.setupErrorFeedback(container, field, state, setting);
   }
 
   getValidator(_field: ToggleField): (value: unknown) => string[] {

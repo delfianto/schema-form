@@ -33,7 +33,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
         toggle.setValue(this.plugin.settings.debugFlag).onChange(async (value) => {
           this.plugin.settings.debugFlag = value;
           await this.plugin.saveSettings();
-        })
+        }),
       );
   }
 
@@ -63,7 +63,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
           .setCta()
           .onClick(() => {
             this.openFolderPicker();
-          })
+          }),
       );
 
     if (!this.plugin.settings.schemaDir) {

@@ -1,3 +1,4 @@
+import type { Setting } from "obsidian";
 import type { Field } from "../../schema/definitions";
 import type { FormState } from "../FormState";
 
@@ -39,6 +40,40 @@ export abstract class BaseFieldRenderer {
 
   protected stateValue(field: Field, state: FormState): string {
     return state.getValue(field.name)?.toString() || "";
+  }
+
+  protected setupErrorFeedback(
+    container: HTMLElement,
+    field: Field,
+    state: FormState,
+    setting: Setting,
+  ): void {
+    const errorDiv = container.createEl("div", {
+      cls: "scf-error-message",
+    });
+
+    state.onErrorChange(field.name, (errors) => {
+      if (errors.length > 0) {
+        setting.controlEl.addClass("has-error");
+        errorDiv.setText(errors[0] ?? "Invalid value");
+        errorDiv.addClass("visible");
+      } else {
+        setting.controlEl.removeClass("has-error");
+        errorDiv.removeClass("visible");
+        errorDiv.setText("");
+      }
+    });
+
+    // Initial check
+    const val = state.getValue(field.name);
+    if (val !== undefined && val !== "") {
+      const errors = state.validateField(field.name);
+      if (errors.length > 0) {
+        setting.controlEl.addClass("has-error");
+        errorDiv.setText(errors[0] ?? "Invalid value");
+        errorDiv.addClass("visible");
+      }
+    }
   }
 
   protected validateRequired(field: Field, value: unknown): string[] {

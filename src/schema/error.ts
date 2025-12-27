@@ -25,7 +25,7 @@ const DEFAULT_ERROR_MESSAGES: Record<ErrorCode, string> = {
 export class FormError extends Error {
   constructor(
     message: string,
-    public readonly cause?: Error
+    public readonly cause?: Error,
   ) {
     super(message);
     this.name = "FormError";
@@ -44,7 +44,7 @@ export class SchemaError extends Error {
       message?: string;
       cause?: Error;
       details?: Record<string, unknown>;
-    }
+    },
   ) {
     const errorMessage =
       options?.message || DEFAULT_ERROR_MESSAGES[code] || "An unknown schema error occurred";

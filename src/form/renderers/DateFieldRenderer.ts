@@ -36,8 +36,9 @@ export class DateFieldRenderer
 
       text.setPlaceholder(this.placeholder(field));
     });
-  }
 
+    this.setupErrorFeedback(container, field, state, setting);
+  }
   getValidator(field: DateField): (value: unknown) => string[] {
     let schema: z.ZodType<string | null | undefined> = z.string();
 
@@ -53,7 +54,7 @@ export class DateFieldRenderer
         const d = new Date(val as string);
         return !Number.isNaN(d.getTime());
       },
-      { message: "Invalid date" }
+      { message: "Invalid date" },
     );
 
     if (field.minDate) {
@@ -66,7 +67,7 @@ export class DateFieldRenderer
           const min = new Date(minDateStr);
           return d >= min;
         },
-        { message: `Date must be after ${field.minDate}` }
+        { message: `Date must be after ${field.minDate}` },
       );
     }
 
@@ -80,7 +81,7 @@ export class DateFieldRenderer
           const max = new Date(maxDateStr);
           return d <= max;
         },
-        { message: `Date must be before ${field.maxDate}` }
+        { message: `Date must be before ${field.maxDate}` },
       );
     }
 

@@ -58,7 +58,7 @@ export class DebugErrorModal extends Modal {
         .setCta()
         .onClick(() => {
           this.close();
-        })
+        }),
     );
   }
 
