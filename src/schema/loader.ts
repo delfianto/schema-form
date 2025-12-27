@@ -1,80 +1,17 @@
 import * as yaml from "js-yaml";
 import { type App, TFile, TFolder } from "obsidian";
 import { assertIsError } from "../utils/quirks";
-import type { Schema } from "./definitions";
+import { FormSchema, type Schema } from "./definitions";
 import { ErrorCode, SchemaError } from "./error";
-
-function isValidSchema(value: unknown): value is Schema {
-  if (!value || typeof value !== "object") {
-    throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-      message: "Schema must be a valid object",
-    });
-  }
-
-  const schema = value as Record<string, unknown>;
-  const fields = schema["fields"];
-
-  if (!fields) {
-    throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-      message: "Schema is missing required 'fields' property",
-    });
-  }
-
-  if (!Array.isArray(fields)) {
-    throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-      message: `Schema 'fields' must be an array, but got ${typeof fields}`,
-    });
-  }
-
-  if (fields.length === 0) {
-    throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-      message: "Schema 'fields' array is empty - at least one field is required",
-    });
-  }
-
-  for (let i = 0; i < fields.length; i++) {
-    const field = fields[i];
-
-    if (!field || typeof field !== "object") {
-      throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-        message: `Field at index ${i} is not a valid object`,
-      });
-    }
-
-    const f = field as Record<string, unknown>;
-
-    if (typeof f["name"] !== "string") {
-      throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-        message: `Field at index ${i} is missing required 'name' property (string)`,
-        details: { field: f },
-      });
-    }
-
-    if (typeof f["type"] !== "string") {
-      throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-        message: `Field '${f["name"]}' at index ${i} is missing required 'type' property (string)`,
-        details: { field: f },
-      });
-    }
-
-    if (f["label"] !== undefined && typeof f["label"] !== "string") {
-      throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-        message: `Field '${f["name"]}' at index ${i} has invalid 'label' property (must be string or undefined, got ${typeof f["label"]})`,
-        details: { field: f },
-      });
-    }
-  }
-
-  return true;
-}
 
 function parseSchema(lang: string, code: string): Schema {
   let parsed: unknown;
 
   try {
-    if (lang.toLowerCase() === "yaml" || lang.toLowerCase() === "yml") {
+    const language = lang.toLowerCase();
+    if (language === "yaml" || language === "yml") {
       parsed = yaml.load(code);
-    } else if (lang.toLowerCase() === "json") {
+    } else if (language === "json") {
       parsed = JSON.parse(code);
     } else {
       throw new SchemaError(ErrorCode.FILE_FORMAT_INVALID, {
@@ -95,9 +32,23 @@ function parseSchema(lang: string, code: string): Schema {
     });
   }
 
-  isValidSchema(parsed);
+  const result = FormSchema.safeParse(parsed);
 
-  return parsed as Schema;
+  if (!result.success) {
+    const errorMessage = result.error.issues
+      .map((e) => {
+        const path = e.path.join(".");
+        return path ? `${path}: ${e.message}` : e.message;
+      })
+      .join("; ");
+
+    throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
+      message: `Validation failed: ${errorMessage}`,
+      details: { errors: result.error.issues },
+    });
+  }
+
+  return result.data;
 }
 
 function readCodeBlock(content: string): { lang: string; code: string } | null {
@@ -164,7 +115,7 @@ export async function loadSchema(app: App, file: TFile): Promise<Schema> {
 export async function loadSchemaWithFallback(
   app: App,
   file: TFile,
-  options?: { maxRetries?: number; fallbackSchema?: Schema }
+  options?: { maxRetries?: number; fallbackSchema?: Schema },
 ): Promise<Schema> {
   const maxRetries = options?.maxRetries ?? 1;
   let lastError: Error | undefined;
@@ -200,7 +151,7 @@ export async function listFiles(app: App, schemaPath: string): Promise<TFile[]> 
   }
 
   const schemaFiles = folder.children.filter(
-    (f) => f instanceof TFile && f.extension === "md"
+    (f) => f instanceof TFile && f.extension === "md",
   ) as TFile[];
 
   if (schemaFiles.length === 0) {

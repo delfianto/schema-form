@@ -216,7 +216,7 @@ description: Missing fields
 			});
 
 			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(SchemaError);
-			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/missing required 'fields' property/);
+			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/fields: (Invalid input|Required)/);
 		});
 
 		test("should throw SchemaError for non-array fields", async () => {
@@ -230,7 +230,7 @@ fields: "not an array"
 			});
 
 			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(SchemaError);
-			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/must be an array/);
+			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/fields: (Invalid input|expected array)/);
 		});
 
 		test("should throw SchemaError for empty fields array", async () => {
@@ -244,7 +244,7 @@ fields: []
 			});
 
 			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(SchemaError);
-			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/fields' array is empty/);
+			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/at least one field/);
 		});
 
 		test("should throw SchemaError for field missing name", async () => {
@@ -260,7 +260,7 @@ fields:
 			});
 
 			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(SchemaError);
-			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/missing required 'name' property/);
+			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/name: (Invalid input|Required)/);
 		});
 
 		test("should throw SchemaError for field missing type", async () => {
@@ -276,7 +276,7 @@ fields:
 			});
 
 			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(SchemaError);
-			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/missing required 'type' property/);
+			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/type: (Invalid input|Required)/);
 		});
 
 		test("should throw SchemaError for invalid label type", async () => {
@@ -293,7 +293,7 @@ fields:
 			});
 
 			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(SchemaError);
-			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/invalid 'label' property/);
+			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/label: (Invalid input|expected string)/);
 		});
 
 		test("should throw SchemaError for non-object field", async () => {
@@ -308,7 +308,7 @@ fields:
 			});
 
 			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(SchemaError);
-			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/is not a valid object/);
+			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/(is not a valid object|Invalid input|expected object)/);
 		});
 
 		test("should include validation error code", async () => {

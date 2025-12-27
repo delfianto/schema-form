@@ -30,7 +30,7 @@ export class FormRenderer {
       wrapWithErrorBoundary(
         () => {
           this.renderField(container, field);
-          this.state.setLabel(field.name, field.label);
+          this.state.setLabel(field.name, field.label || field.name);
         },
         (error) => {
           Log.error(`Error rendering field ${field.name}:`, error);
