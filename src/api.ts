@@ -9,11 +9,42 @@ declare global {
   }
 }
 
+/**
+ * Public API for the Schema Form plugin.
+ * Accessible via `window.scf`.
+ */
 export interface SCFApi {
+  /**
+   * Retrieves the value of a specific form field from the last submission.
+   * @param fieldName The name of the field to retrieve.
+   * @returns The value of the field, or null if not found.
+   */
   readonly value: (fieldName: string) => unknown;
+
+  /**
+   * Retrieves the label of a specific form field from the last submission.
+   * @param fieldName The name of the field.
+   * @returns The label of the field, or the fieldName if no label is found.
+   */
   readonly label: (fieldName: string) => string;
+
+  /**
+   * Checks if there is any data from a previous form submission.
+   * @returns True if form data exists, false otherwise.
+   */
   readonly hasData: () => boolean;
+
+  /**
+   * Triggers the schema selection and form modal.
+   * @param schemaName Optional name of a specific schema file to trigger directly.
+   * @returns A promise that resolves to the submitted form data.
+   * @throws FormError if the form is cancelled or an error occurs.
+   */
   readonly triggerForm: (schemaName?: string) => Promise<FormData>;
+
+  /**
+   * Resets the internal form data and labels.
+   */
   readonly reset: () => void;
 }
 
@@ -34,7 +65,6 @@ class SCFApiImpl implements SCFApi {
     return Object.keys(this.plugin.formData).length > 0;
   };
 
-  // Modern async method with proper error handling
   triggerForm = async (): Promise<FormData> => {
     try {
       const formHandler = new FormHandler(this.plugin, this.plugin.settings.schemaDir);
@@ -49,7 +79,6 @@ class SCFApiImpl implements SCFApi {
       this.plugin.submitFormData(result);
       return result as FormData;
     } catch (error) {
-      // Modern error handling with proper typing
       if (error instanceof Error) {
         throw new FormError(`Failed to trigger form: ${error.message}`, error);
       }

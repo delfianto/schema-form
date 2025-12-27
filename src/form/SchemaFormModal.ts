@@ -31,10 +31,8 @@ export class SchemaFormModal extends Modal {
     this.schema = schema;
     this.onSubmit = onSubmit;
 
-    // Debug logging
     this.debugLog("Constructor called with schema:", schema);
 
-    // Validate schema structure
     if (!schema) {
       throw new Error("Schema is null or undefined");
     }
@@ -61,7 +59,6 @@ export class SchemaFormModal extends Modal {
     try {
       contentEl.createEl("h2", { text: "Form" });
 
-      // Validate schema.fields exists and is an array before forEach
       if (!this.schema.fields || !Array.isArray(this.schema.fields)) {
         throw new Error(`Invalid schema structure: fields is ${typeof this.schema.fields}`);
       }
@@ -69,7 +66,6 @@ export class SchemaFormModal extends Modal {
       this.debugLog("About to render", this.schema.fields.length, "fields");
       this.formRenderer.renderSchema(contentEl, this.schema);
 
-      // Submit button
       new Setting(contentEl)
         .addButton((btn) =>
           btn
@@ -85,7 +81,6 @@ export class SchemaFormModal extends Modal {
         cls: cssClass(SCHEMA_FORM_STYLE.FORM_ERROR),
       });
 
-      // Still show cancel button
       new Setting(contentEl).addButton((btn) =>
         btn.setButtonText("Close").onClick(() => this.close())
       );

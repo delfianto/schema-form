@@ -40,17 +40,11 @@ export class FormHandler {
     } catch (error) {
       assertIsError(error);
 
-      // Show user-friendly error modal for schema errors
       if (error instanceof SchemaError) {
         Log.error("Schema error occurred:", error);
-
-        // Show detailed error modal to help user fix the schema
         new DebugErrorModal(this.app, error, "Schema Loading Error").open();
-
-        // Also show a brief notice
         new Notice(`Schema error: ${error.message}`);
       } else {
-        // For unexpected errors, still show the debug modal
         Log.error("Unexpected error in showForm:", error);
         new DebugErrorModal(this.app, error, "Unexpected Error").open();
         new Notice("An unexpected error occurred. See error details in the modal.");
@@ -62,8 +56,9 @@ export class FormHandler {
 
   private displaySelector(files: TFile[]): Promise<TFile | null> {
     return new Promise((resolve) => {
-      if (files.length === 1) {
-        resolve(files[0]);
+      const firstFile = files[0];
+      if (files.length === 1 && firstFile) {
+        resolve(firstFile);
         return;
       }
 

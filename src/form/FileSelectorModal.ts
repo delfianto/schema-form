@@ -29,7 +29,6 @@ export class FileSelectorModal extends Modal {
         );
     });
 
-    // Cancel button
     new Setting(contentEl).addButton((btn) =>
       btn
         .setButtonText("Cancel")

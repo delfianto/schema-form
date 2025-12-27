@@ -1,6 +1,7 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import path from "path";
 
 const banner =
 `/*
@@ -32,6 +33,12 @@ const context = await esbuild.context({
 		"@lezer/highlight",
 		"@lezer/lr",
 		...builtins],
+	alias: {
+		"@": path.resolve("./src"),
+		"@form": path.resolve("./src/form"),
+		"@schema": path.resolve("./src/schema"),
+		"@utils": path.resolve("./src/utils"),
+	},
 	format: "cjs",
 	target: "es2018",
 	logLevel: "info",

@@ -2,6 +2,7 @@ import { Setting } from "obsidian";
 import type {
   DateField,
   Field,
+  MultiSelectField,
   NumberField,
   Schema,
   SelectField,
@@ -11,7 +12,7 @@ import type {
 } from "../schema";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import * as Log from "../utils/logger";
-import { assertIsError } from "../utils/quirks";
+import { wrapWithErrorBoundary } from "./ErrorBoundary";
 import type { FormState } from "./FormState";
 
 export class FormRenderer {
@@ -26,14 +27,16 @@ export class FormRenderer {
     this.setupDefaults(schema);
 
     schema.fields.forEach((field) => {
-      try {
-        this.renderField(container, field);
-        this.state.setLabel(field.name, field.label);
-      } catch (error) {
-        assertIsError(error);
-        Log.error(`Error rendering field ${field.name}:`, error);
-        this.renderErrorField(container, field, error.message);
-      }
+      wrapWithErrorBoundary(
+        () => {
+          this.renderField(container, field);
+          this.state.setLabel(field.name, field.label);
+        },
+        (error) => {
+          Log.error(`Error rendering field ${field.name}:`, error);
+          this.renderErrorField(container, field, error.message);
+        }
+      );
     });
   }
 
@@ -43,6 +46,8 @@ export class FormRenderer {
     });
 
     this.elements.set(field.name, fieldContainer);
+
+    this.addValidatorForField(field);
 
     switch (field.type) {
       case "TEXT":
@@ -61,11 +66,7 @@ export class FormRenderer {
         this.renderSelectField(fieldContainer, field);
         break;
       case "MULTI_SELECT":
-        this.renderUnimplementedField(
-          fieldContainer,
-          field,
-          "MULTI_SELECT fields are not yet supported"
-        );
+        this.renderMultiSelectField(fieldContainer, field as MultiSelectField);
         break;
       case "DATE":
         this.renderDateField(fieldContainer, field);
@@ -165,15 +166,20 @@ export class FormRenderer {
     setting.addDropdown((dropdown) => {
       if (field.options && Array.isArray(field.options)) {
         field.options.forEach((option) => {
-          dropdown.addOption(String(option), String(option));
+          const value = typeof option === "string" ? option : option.value;
+          const label = typeof option === "string" ? option : option.label;
+          dropdown.addOption(value, label);
         });
 
         const currentValue = this.state.getValue(field.name) as string | undefined;
-        const stringValue = currentValue || (field.options[0] as string);
+        const stringValue =
+          currentValue ||
+          (typeof field.options[0] === "string" ? field.options[0] : field.options[0]?.value) ||
+          "";
         dropdown.setValue(stringValue);
 
         if (!this.state.getValue(field.name)) {
-          this.state.setValue(field.name, field.options[0]);
+          this.state.setValue(field.name, stringValue);
         }
       }
 
@@ -181,6 +187,39 @@ export class FormRenderer {
         this.state.setValue(field.name, value);
       });
     });
+  }
+
+  private renderMultiSelectField(container: HTMLElement, field: MultiSelectField): void {
+    new Setting(container).setName(this.label(field)).setDesc(this.desc(field));
+
+    const optionsContainer = container.createDiv({
+      cls: cssClass(SCHEMA_FORM_STYLE.MULTI_SELECT_CONTAINER || "multi-select-container"),
+    });
+
+    const selectedValues = new Set<string>((this.state.getValue(field.name) as string[]) || []);
+
+    if (field.options && Array.isArray(field.options)) {
+      field.options.forEach((option: string | { value: string; label: string }) => {
+        const value = typeof option === "string" ? option : option.value;
+        const label = typeof option === "string" ? option : option.label;
+
+        const row = optionsContainer.createDiv({
+          cls: cssClass(SCHEMA_FORM_STYLE.MULTI_SELECT_ROW),
+        });
+        const checkbox = row.createEl("input", { type: "checkbox" });
+        checkbox.checked = selectedValues.has(value);
+        row.createEl("label", { text: label });
+
+        checkbox.addEventListener("change", () => {
+          if (checkbox.checked) {
+            selectedValues.add(value);
+          } else {
+            selectedValues.delete(value);
+          }
+          this.state.setValue(field.name, Array.from(selectedValues));
+        });
+      });
+    }
   }
 
   private renderDateField(container: HTMLElement, field: DateField): void {
@@ -220,11 +259,45 @@ export class FormRenderer {
     new Setting(container).setName(this.label(field)).setDesc(`Unknown field type: ${field.type}`);
   }
 
-  private renderUnimplementedField(container: HTMLElement, field: Field, message: string): void {
-    new Setting(container)
-      .setName(this.label(field))
-      .setDesc(message)
-      .setClass(cssClass(SCHEMA_FORM_STYLE.FORM_WARNING));
+  private addValidatorForField(field: Field): void {
+    this.state.addValidator(field.name, (value) => {
+      const errors: string[] = [];
+
+      if (field.required && (value === undefined || value === null || value === "")) {
+        errors.push(`${field.label || field.name} is required`);
+      }
+
+      switch (field.type) {
+        case "TEXT":
+          if (typeof value === "string") {
+            if (field.minLength && value.length < field.minLength) {
+              errors.push(`Minimum length is ${field.minLength}`);
+            }
+            if (field.maxLength && value.length > field.maxLength) {
+              errors.push(`Maximum length is ${field.maxLength}`);
+            }
+            if (field.regex) {
+              const re = new RegExp(field.regex);
+              if (!re.test(value)) {
+                errors.push("Invalid format");
+              }
+            }
+          }
+          break;
+        case "NUMBER":
+          if (typeof value === "number") {
+            if (field.min !== undefined && value < field.min) {
+              errors.push(`Minimum value is ${field.min}`);
+            }
+            if (field.max !== undefined && value > field.max) {
+              errors.push(`Maximum value is ${field.max}`);
+            }
+          }
+          break;
+      }
+
+      return errors;
+    });
   }
 
   private setupDefaults(schema: Schema): void {

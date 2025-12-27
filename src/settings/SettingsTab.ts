@@ -70,7 +70,6 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       return;
     }
 
-    // Show current schema folder info
     const folderInfo = container.createEl("div", {
       cls: "setting-item-info",
     });
@@ -79,7 +78,6 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       cls: "setting-item-description",
     });
 
-    // Validate folder exists
     const folder = this.app.vault.getAbstractFileByPath(this.plugin.settings.schemaDir);
 
     if (folder && folder instanceof TFolder) {
@@ -123,7 +121,6 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       this.plugin.settings.schemaDir = folder.path;
       await this.plugin.saveSettings();
 
-      // Refresh the settings display
       this.display();
     }).open();
   }
@@ -140,11 +137,9 @@ export class SchemaFormSettingTab extends PluginSettingTab {
       }
     };
 
-    // Add root folder
     const rootFolder = this.app.vault.getRoot();
     folders.push(rootFolder);
 
-    // Add all subfolders
     for (const child of rootFolder.children) {
       if (child instanceof TFolder) {
         addFolder(child);

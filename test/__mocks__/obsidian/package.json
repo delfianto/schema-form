@@ -1,0 +1,6 @@
+{
+  "name": "obsidian",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "type": "module"
+}

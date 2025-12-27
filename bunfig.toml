@@ -4,3 +4,6 @@ exact = false
 
 [run]
 shell = "bun"
+
+[test]
+preload = ["./test/setup.ts"]

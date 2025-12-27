@@ -12,28 +12,28 @@ function isValidSchema(value: unknown): value is Schema {
   }
 
   const schema = value as Record<string, unknown>;
+  const fields = schema["fields"];
 
-  if (!schema.fields) {
+  if (!fields) {
     throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
       message: "Schema is missing required 'fields' property",
     });
   }
 
-  if (!Array.isArray(schema.fields)) {
+  if (!Array.isArray(fields)) {
     throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-      message: `Schema 'fields' must be an array, but got ${typeof schema.fields}`,
+      message: `Schema 'fields' must be an array, but got ${typeof fields}`,
     });
   }
 
-  if (schema.fields.length === 0) {
+  if (fields.length === 0) {
     throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
       message: "Schema 'fields' array is empty - at least one field is required",
     });
   }
 
-  // Validate each field
-  for (let i = 0; i < schema.fields.length; i++) {
-    const field = schema.fields[i];
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i];
 
     if (!field || typeof field !== "object") {
       throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
@@ -43,23 +43,23 @@ function isValidSchema(value: unknown): value is Schema {
 
     const f = field as Record<string, unknown>;
 
-    if (typeof f.name !== "string") {
+    if (typeof f["name"] !== "string") {
       throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
         message: `Field at index ${i} is missing required 'name' property (string)`,
         details: { field: f },
       });
     }
 
-    if (typeof f.type !== "string") {
+    if (typeof f["type"] !== "string") {
       throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-        message: `Field '${f.name}' at index ${i} is missing required 'type' property (string)`,
+        message: `Field '${f["name"]}' at index ${i} is missing required 'type' property (string)`,
         details: { field: f },
       });
     }
 
-    if (f.label !== undefined && typeof f.label !== "string") {
+    if (f["label"] !== undefined && typeof f["label"] !== "string") {
       throw new SchemaError(ErrorCode.SCHEMA_VALIDATION_ERROR, {
-        message: `Field '${f.name}' at index ${i} has invalid 'label' property (must be string or undefined, got ${typeof f.label})`,
+        message: `Field '${f["name"]}' at index ${i} has invalid 'label' property (must be string or undefined, got ${typeof f["label"]})`,
         details: { field: f },
       });
     }
@@ -71,7 +71,6 @@ function isValidSchema(value: unknown): value is Schema {
 function parseSchema(lang: string, code: string): Schema {
   let parsed: unknown;
 
-  // Parse YAML or JSON
   try {
     if (lang.toLowerCase() === "yaml" || lang.toLowerCase() === "yml") {
       parsed = yaml.load(code);
@@ -85,12 +84,10 @@ function parseSchema(lang: string, code: string): Schema {
   } catch (error) {
     assertIsError(error);
 
-    // If it's already a SchemaError, re-throw it
     if (error instanceof SchemaError) {
       throw error;
     }
 
-    // Otherwise, wrap the parse error
     const isYaml = lang.toLowerCase() === "yaml" || lang.toLowerCase() === "yml";
     throw new SchemaError(isYaml ? ErrorCode.SCHEMA_YAML_ERROR : ErrorCode.SCHEMA_JSON_ERROR, {
       message: `Failed to parse ${isYaml ? "YAML" : "JSON"}: ${error.message}`,
@@ -98,7 +95,6 @@ function parseSchema(lang: string, code: string): Schema {
     });
   }
 
-  // Validate the parsed schema structure
   isValidSchema(parsed);
 
   return parsed as Schema;
@@ -107,9 +103,11 @@ function parseSchema(lang: string, code: string): Schema {
 function readCodeBlock(content: string): { lang: string; code: string } | null {
   const match = content.match(/```(\w+)?\n([\s\S]*?)```/);
   if (!match) return null;
+  const lang = match[1] || "";
+  const code = match[2] || "";
   return {
-    lang: match[1] || "",
-    code: match[2].trim(),
+    lang,
+    code: code.trim(),
   };
 }
 
@@ -128,7 +126,6 @@ export async function loadSchema(app: App, file: TFile): Promise<Schema> {
     return parseSchema(block.lang, block.code);
   } catch (error) {
     if (error instanceof SchemaError) {
-      // Add file path context if not already set
       if (!error.path) {
         const options: {
           message: string;
@@ -159,6 +156,37 @@ export async function loadSchema(app: App, file: TFile): Promise<Schema> {
       path: file.path,
     });
   }
+}
+
+/**
+ * Loads a schema with optional retries and a fallback schema in case of failure.
+ */
+export async function loadSchemaWithFallback(
+  app: App,
+  file: TFile,
+  options?: { maxRetries?: number; fallbackSchema?: Schema }
+): Promise<Schema> {
+  const maxRetries = options?.maxRetries ?? 1;
+  let lastError: Error | undefined;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await loadSchema(app, file);
+    } catch (error) {
+      assertIsError(error);
+      lastError = error;
+      if (attempt < maxRetries) {
+        // Exponential backoff or simple delay can be added here if needed
+        await new Promise((resolve) => setTimeout(resolve, attempt * 500));
+      }
+    }
+  }
+
+  if (options?.fallbackSchema) {
+    return options.fallbackSchema;
+  }
+
+  throw lastError || new Error("Failed to load schema");
 }
 
 export async function listFiles(app: App, schemaPath: string): Promise<TFile[]> {

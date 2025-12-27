@@ -1,3 +1,6 @@
+import { debounce } from "obsidian";
+import { sanitizeFormValue } from "../utils/sanitize";
+
 export class FormState {
   private data: Record<string, unknown> = {};
   private label: Record<string, string> = {};
@@ -6,26 +9,28 @@ export class FormState {
   private changeListeners: Map<string, Set<(value: unknown) => void>> = new Map();
   private validationListeners: Set<() => void> = new Set();
 
+  private debouncedNotifyValidation = debounce(() => this.notifyValidationListeners(), 300, true);
+
   constructor(init: Record<string, unknown> = {}) {
     this.data = { ...init };
   }
 
-  // Data management
   getValue(fieldName: string): unknown {
     return this.data[fieldName];
   }
 
   setValue(fieldName: string, value: unknown): void {
+    const sanitizedValue = sanitizeFormValue(value);
     const oldValue = this.data[fieldName];
-    this.data[fieldName] = value;
+    this.data[fieldName] = sanitizedValue;
 
-    if (oldValue !== value) {
-      this.notifyFieldListeners(fieldName, value);
-      this.notifyValidationListeners();
+    if (oldValue !== sanitizedValue) {
+      this.notifyFieldListeners(fieldName, sanitizedValue);
+      this.debouncedNotifyValidation();
     }
   }
 
-  getLabel(fieldName: string): string {
+  getLabel(fieldName: string): string | undefined {
     return this.label[fieldName];
   }
 
@@ -45,7 +50,6 @@ export class FormState {
     });
   }
 
-  // Validation management
   addValidator(fieldName: string, validator: (value: unknown) => string[]): void {
     this.validators.set(fieldName, validator);
   }
@@ -70,7 +74,6 @@ export class FormState {
     return { isValid, errors };
   }
 
-  // Event system
   onFieldChange(fieldName: string, listener: (value: unknown) => void): void {
     if (!this.changeListeners.has(fieldName)) {
       this.changeListeners.set(fieldName, new Set());

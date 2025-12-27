@@ -20,12 +20,14 @@ export interface TextField extends BaseField {
   readonly regex?: string;
   readonly minLength?: number;
   readonly maxLength?: number;
+  readonly placeholder?: string;
 }
 
 export interface TextAreaField extends BaseField {
   readonly type: "TEXT_AREA";
   readonly rows?: number;
   readonly maxLength?: number;
+  readonly placeholder?: string;
 }
 
 export interface NumberField extends BaseField {
@@ -33,6 +35,7 @@ export interface NumberField extends BaseField {
   readonly min?: number;
   readonly max?: number;
   readonly step?: number;
+  readonly placeholder?: string;
 }
 
 export interface ToggleField extends BaseField {
@@ -40,14 +43,19 @@ export interface ToggleField extends BaseField {
   readonly default?: boolean;
 }
 
+export interface SelectOption {
+  readonly value: string;
+  readonly label: string;
+}
+
 export interface SelectField extends BaseField {
   readonly type: "SELECT";
-  readonly options: string[] | { value: string; label: string }[];
+  readonly options: readonly (string | SelectOption)[];
 }
 
 export interface MultiSelectField extends BaseField {
   readonly type: "MULTI_SELECT";
-  readonly options: string[] | { value: string; label: string }[];
+  readonly options: readonly (string | SelectOption)[];
   readonly maxSelections?: number;
 }
 
@@ -59,5 +67,5 @@ export interface DateField extends BaseField {
 }
 
 export interface Schema {
-  readonly fields: Field[];
+  readonly fields: readonly Field[];
 }
