@@ -384,7 +384,9 @@ describe("FormState", () => {
 			state.onFieldChange("field", failingListener);
 			state.onFieldChange("field", successListener);
 
-			expect(() => state.setValue("field", "value")).toThrow();
+			// Should NOT throw, and second listener should still be called
+			expect(() => state.setValue("field", "value")).not.toThrow();
+			expect(successListener).toHaveBeenCalled();
 		});
 
 		test("should not call listener when field is set before registration", () => {
@@ -487,6 +489,174 @@ describe("FormState", () => {
 
 			state.setValue("field", "invalid");
 			expect(listener).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("listener cleanup", () => {
+		describe("removeFieldChangeListener", () => {
+			test("should remove field change listener", () => {
+				const listener = mock((_value: unknown) => {});
+
+				state.onFieldChange("field", listener);
+				state.setValue("field", "value1");
+				expect(listener).toHaveBeenCalledTimes(1);
+
+				state.removeFieldChangeListener("field", listener);
+				state.setValue("field", "value2");
+				expect(listener).toHaveBeenCalledTimes(1); // Not called again
+			});
+
+			test("should only remove the specific listener", () => {
+				const listener1 = mock((_value: unknown) => {});
+				const listener2 = mock((_value: unknown) => {});
+
+				state.onFieldChange("field", listener1);
+				state.onFieldChange("field", listener2);
+
+				state.removeFieldChangeListener("field", listener1);
+				state.setValue("field", "value");
+
+				expect(listener1).not.toHaveBeenCalled();
+				expect(listener2).toHaveBeenCalledTimes(1);
+			});
+
+			test("should handle removing non-existent listener gracefully", () => {
+				const listener = mock((_value: unknown) => {});
+
+				expect(() => {
+					state.removeFieldChangeListener("field", listener);
+				}).not.toThrow();
+			});
+		});
+
+		describe("removeErrorChangeListener", () => {
+			test("should remove error change listener", () => {
+				const listener = mock((_errors: string[]) => {});
+				const validator = (value: unknown) => (value === "invalid" ? ["Invalid value"] : []);
+
+				state.addValidator("field", validator);
+				state.onErrorChange("field", listener);
+
+				state.setValue("field", "invalid");
+				expect(listener).toHaveBeenCalledTimes(1);
+
+				state.removeErrorChangeListener("field", listener);
+				state.setValue("field", "valid");
+				state.setValue("field", "invalid");
+				expect(listener).toHaveBeenCalledTimes(1); // Not called again
+			});
+
+			test("should only remove the specific error listener", () => {
+				const listener1 = mock((_errors: string[]) => {});
+				const listener2 = mock((_errors: string[]) => {});
+				const validator = (value: unknown) => (value === "invalid" ? ["Invalid value"] : []);
+
+				state.addValidator("field", validator);
+				state.onErrorChange("field", listener1);
+				state.onErrorChange("field", listener2);
+
+				state.removeErrorChangeListener("field", listener1);
+				state.setValue("field", "invalid");
+
+				expect(listener1).not.toHaveBeenCalled();
+				expect(listener2).toHaveBeenCalledTimes(1);
+			});
+		});
+
+		describe("removeValidationChangeListener", () => {
+			test("should remove validation change listener", () => {
+				const listener = mock(() => {});
+				const validator = () => [];
+
+				state.addValidator("field", validator);
+				state.onValidationChange(listener);
+
+				state.setValue("field", "value1");
+				expect(listener).toHaveBeenCalledTimes(1);
+
+				state.removeValidationChangeListener(listener);
+				state.setValue("field", "value2");
+				expect(listener).toHaveBeenCalledTimes(1); // Not called again
+			});
+
+			test("should only remove the specific validation listener", () => {
+				const listener1 = mock(() => {});
+				const listener2 = mock(() => {});
+				const validator = () => [];
+
+				state.addValidator("field", validator);
+				state.onValidationChange(listener1);
+				state.onValidationChange(listener2);
+
+				state.removeValidationChangeListener(listener1);
+				state.setValue("field", "value");
+
+				expect(listener1).not.toHaveBeenCalled();
+				expect(listener2).toHaveBeenCalledTimes(1);
+			});
+		});
+
+		describe("clearAllListeners", () => {
+			test("should clear all field change listeners", () => {
+				const listener1 = mock((_value: unknown) => {});
+				const listener2 = mock((_value: unknown) => {});
+
+				state.onFieldChange("field1", listener1);
+				state.onFieldChange("field2", listener2);
+
+				state.clearAllListeners();
+
+				state.setValue("field1", "value1");
+				state.setValue("field2", "value2");
+
+				expect(listener1).not.toHaveBeenCalled();
+				expect(listener2).not.toHaveBeenCalled();
+			});
+
+			test("should clear all error listeners", () => {
+				const listener = mock((_errors: string[]) => {});
+				const validator = (value: unknown) => (value === "invalid" ? ["Invalid value"] : []);
+
+				state.addValidator("field", validator);
+				state.onErrorChange("field", listener);
+
+				state.clearAllListeners();
+				state.setValue("field", "invalid");
+
+				expect(listener).not.toHaveBeenCalled();
+			});
+
+			test("should clear all validation listeners", () => {
+				const listener = mock(() => {});
+				const validator = () => [];
+
+				state.addValidator("field", validator);
+				state.onValidationChange(listener);
+
+				state.clearAllListeners();
+				state.setValue("field", "value");
+
+				expect(listener).not.toHaveBeenCalled();
+			});
+
+			test("should clear all listener types at once", () => {
+				const fieldListener = mock((_value: unknown) => {});
+				const errorListener = mock((_errors: string[]) => {});
+				const validationListener = mock(() => {});
+				const validator = () => [];
+
+				state.addValidator("field", validator);
+				state.onFieldChange("field", fieldListener);
+				state.onErrorChange("field", errorListener);
+				state.onValidationChange(validationListener);
+
+				state.clearAllListeners();
+				state.setValue("field", "value");
+
+				expect(fieldListener).not.toHaveBeenCalled();
+				expect(errorListener).not.toHaveBeenCalled();
+				expect(validationListener).not.toHaveBeenCalled();
+			});
 		});
 	});
 

@@ -2,26 +2,29 @@ import type { Field } from "../schema";
 import { DefaultRenderer } from "./renderers/DefaultRenderer";
 import type { FieldRendererStrategy } from "./renderers/types";
 
-const strategies: FieldRendererStrategy<Field>[] = [];
-const defaultStrategy: FieldRendererStrategy<Field> = new DefaultRenderer();
+export class RendererRegistry {
+  private strategies: FieldRendererStrategy<Field>[] = [];
+  private defaultStrategy: FieldRendererStrategy<Field> = new DefaultRenderer();
 
-export const RendererRegistry = {
-  register(strategy: FieldRendererStrategy<Field>) {
-    const exists = strategies.some((s) => s.constructor.name === strategy.constructor.name);
+  register(strategy: FieldRendererStrategy<Field>): void {
+    const exists = this.strategies.some((s) => s.constructor.name === strategy.constructor.name);
     if (!exists) {
-      strategies.push(strategy);
+      this.strategies.push(strategy);
     }
-  },
+  }
 
   getStrategies(): FieldRendererStrategy<Field>[] {
-    return strategies;
-  },
+    return [...this.strategies];
+  }
 
   getStrategy(type: string): FieldRendererStrategy<Field> {
-    return strategies.find((s) => s.supports(type)) || defaultStrategy;
-  },
+    return this.strategies.find((s) => s.supports(type)) || this.defaultStrategy;
+  }
 
-  clear() {
-    strategies.length = 0;
-  },
-} as const;
+  clear(): void {
+    this.strategies = [];
+  }
+}
+
+// Default instance for backward compatibility
+export const defaultRegistry = new RendererRegistry();

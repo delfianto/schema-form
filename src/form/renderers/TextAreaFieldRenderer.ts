@@ -1,7 +1,7 @@
 import { debounce, Setting } from "obsidian";
-import { z } from "zod";
 import type { TextAreaField } from "../../schema/definitions";
 import type { FormState } from "../FormState";
+import { ValidatorBuilder } from "../validation/ValidatorBuilder";
 import { BaseFieldRenderer, type FieldRendererStrategy } from "./types";
 
 export class TextAreaFieldRenderer
@@ -30,22 +30,16 @@ export class TextAreaFieldRenderer
   }
 
   getValidator(field: TextAreaField): (value: unknown) => string[] {
-    let schema: z.ZodString = z.string();
+    const builder = new ValidatorBuilder();
 
-    if (!field.required) {
-      schema = z.string().optional().or(z.literal("")) as unknown as z.ZodString;
+    if (field.required) {
+      builder.required();
     } else {
-      schema = z.string().min(1, "This field is required");
+      builder.optional();
     }
 
-    if (field.maxLength) {
-      schema = schema.max(field.maxLength, `Maximum length is ${field.maxLength}`);
-    }
+    if (field.maxLength) builder.maxLength(field.maxLength);
 
-    return (value: unknown) => {
-      const result = schema.safeParse(value);
-      if (result.success) return [];
-      return result.error.issues.map((e) => e.message);
-    };
+    return builder.build();
   }
 }

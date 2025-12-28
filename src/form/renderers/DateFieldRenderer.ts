@@ -1,4 +1,4 @@
-import { Setting } from "obsidian";
+import { debounce, Setting } from "obsidian";
 import { z } from "zod";
 import type { DateField } from "../../schema/definitions";
 import type { FormState } from "../FormState";
@@ -24,9 +24,11 @@ export class DateFieldRenderer
       text
         .setPlaceholder(this.placeholder(field))
         .setValue(String(this.stateValue(field, state) ?? ""))
-        .onChange((value) => {
-          state.setValue(field.name, value);
-        });
+        .onChange(
+          debounce((value) => {
+            state.setValue(field.name, value);
+          }, 300),
+        );
     });
 
     this.setupErrorFeedback(container, field, state, setting);

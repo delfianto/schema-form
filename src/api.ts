@@ -10,6 +10,8 @@ declare global {
 }
 
 export interface SCFApi {
+  readonly version: string;
+
   readonly value: (fieldName: string) => unknown | null;
 
   readonly label: (fieldName: string) => string | null;
@@ -24,6 +26,10 @@ export interface SCFApi {
 export type FormData = Record<string, unknown> & { readonly __brand: "FormData" };
 
 class SCFApiImpl implements SCFApi {
+  readonly version = "1.0.0";
+  private lastTrigger = 0;
+  private readonly minInterval = 500; // ms between triggers
+
   constructor(private readonly plugin: SchemaFormPlugin) {}
 
   value = (fieldName: string): unknown | null => {
@@ -39,6 +45,12 @@ class SCFApiImpl implements SCFApi {
   };
 
   triggerForm = async (schemaName?: string): Promise<FormData> => {
+    const now = Date.now();
+    if (now - this.lastTrigger < this.minInterval) {
+      throw new FormError("Rate limit exceeded. Please wait before triggering another form.");
+    }
+    this.lastTrigger = now;
+
     try {
       const formHandler = new FormHandler(this.plugin, this.plugin.settings.schemaDir);
 

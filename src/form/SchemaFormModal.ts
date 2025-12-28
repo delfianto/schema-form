@@ -101,7 +101,13 @@ export class SchemaFormModal extends Modal {
   }
 
   onClose() {
+    // Clear all form state listeners to prevent memory leaks
+    this.formState.clearAllListeners();
+
+    // Clear DOM
     this.contentEl.empty();
+
+    // Notify callback if not submitted
     if (!this.isSubmitted) {
       this.onSubmit(null);
     }

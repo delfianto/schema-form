@@ -37,19 +37,21 @@ export class NumberFieldRenderer
   }
 
   getValidator(field: NumberField): (value: unknown) => string[] {
-    let schema = z.number({ message: "Must be a number" });
-
-    if (!field.required) {
-      schema = schema.optional() as unknown as z.ZodNumber;
-    }
-
-    if (field.min !== undefined) schema = schema.min(field.min, `Minimum value is ${field.min}`);
-    if (field.max !== undefined) schema = schema.max(field.max, `Maximum value is ${field.max}`);
-
     return (value: unknown) => {
+      // Handle empty values
       if (value === "" || value === undefined || value === null) {
         if (field.required) return ["This field is required"];
         return [];
+      }
+
+      // Build schema based on field configuration
+      let schema = z.number({ message: "Must be a number" });
+
+      if (field.min !== undefined) {
+        schema = schema.min(field.min, `Minimum value is ${field.min}`);
+      }
+      if (field.max !== undefined) {
+        schema = schema.max(field.max, `Maximum value is ${field.max}`);
       }
 
       const result = schema.safeParse(value);

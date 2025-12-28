@@ -1,4 +1,4 @@
-import { Setting } from "obsidian";
+import { debounce, Setting } from "obsidian";
 import { z } from "zod";
 import type { SelectField } from "../../schema/definitions";
 import type { FormState } from "../FormState";
@@ -35,9 +35,11 @@ export class SelectFieldRenderer
         }
       }
 
-      dropdown.onChange((value) => {
-        state.setValue(field.name, value);
-      });
+      dropdown.onChange(
+        debounce((value) => {
+          state.setValue(field.name, value);
+        }, 100),
+      );
     });
 
     this.setupErrorFeedback(container, field, state, setting);

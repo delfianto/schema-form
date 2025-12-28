@@ -97,12 +97,40 @@ export class FormState {
     this.errorListeners.get(fieldName)?.add(listener);
   }
 
+  removeFieldChangeListener(fieldName: string, listener: (value: unknown) => void): void {
+    const listeners = this.changeListeners.get(fieldName);
+    if (listeners) {
+      listeners.delete(listener);
+    }
+  }
+
+  removeErrorChangeListener(fieldName: string, listener: (errors: string[]) => void): void {
+    const listeners = this.errorListeners.get(fieldName);
+    if (listeners) {
+      listeners.delete(listener);
+    }
+  }
+
+  removeValidationChangeListener(listener: () => void): void {
+    this.validationListeners.delete(listener);
+  }
+
+  clearAllListeners(): void {
+    this.changeListeners.clear();
+    this.errorListeners.clear();
+    this.validationListeners.clear();
+  }
+
   private notifyFieldListeners(fieldName: string, value: unknown): void {
     const listeners = this.changeListeners.get(fieldName);
 
     if (listeners) {
       listeners.forEach((listener) => {
-        listener(value);
+        try {
+          listener(value);
+        } catch (error) {
+          console.error(`Error in field change listener for "${fieldName}":`, error);
+        }
       });
     }
   }
@@ -111,14 +139,22 @@ export class FormState {
     const listeners = this.errorListeners.get(fieldName);
     if (listeners) {
       listeners.forEach((listener) => {
-        listener(errors);
+        try {
+          listener(errors);
+        } catch (error) {
+          console.error(`Error in error listener for "${fieldName}":`, error);
+        }
       });
     }
   }
 
   private notifyValidationListeners(): void {
     this.validationListeners.forEach((listener) => {
-      listener();
+      try {
+        listener();
+      } catch (error) {
+        console.error("Error in validation listener:", error);
+      }
     });
   }
 }

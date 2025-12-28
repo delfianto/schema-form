@@ -52,14 +52,84 @@ function parseSchema(lang: string, code: string): Schema {
   return result.data;
 }
 
+interface CodeBlock {
+  lang: string;
+  code: string;
+  start: number;
+  end: number;
+}
+
+function findCodeBlocks(content: string): CodeBlock[] {
+  const blocks: CodeBlock[] = [];
+  const lines = content.split("\n");
+  let inBlock = false;
+  let currentBlock: Partial<CodeBlock> = {};
+  let codeLines: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line) continue;
+
+    // Check for opening fence (``` or ~~~)
+    const openMatch = line.match(/^(`{3,}|~{3,})(\w*)\s*$/);
+    if (openMatch && !inBlock) {
+      inBlock = true;
+      currentBlock = {
+        lang: openMatch[2] || "",
+        start: i,
+      };
+      codeLines = [];
+      continue;
+    }
+
+    // Check for closing fence
+    const closeMatch = line.match(/^(`{3,}|~{3,})\s*$/);
+    if (closeMatch && inBlock) {
+      blocks.push({
+        lang: currentBlock.lang || "",
+        code: codeLines.join("\n").trim(),
+        start: currentBlock.start || 0,
+        end: i,
+      });
+      inBlock = false;
+      currentBlock = {};
+      codeLines = [];
+      continue;
+    }
+
+    if (inBlock) {
+      codeLines.push(line);
+    }
+  }
+
+  return blocks;
+}
+
 function readCodeBlock(content: string): { lang: string; code: string } | null {
-  const match = content.match(/```(\w+)?\n([\s\S]*?)```/);
-  if (!match) return null;
-  const lang = match[1] || "";
-  const code = match[2] || "";
+  const blocks = findCodeBlocks(content);
+
+  if (blocks.length === 0) return null;
+
+  // Find first YAML or JSON block
+  const schemaBlock = blocks.find((b) => {
+    const lang = b.lang.toLowerCase();
+    return lang === "yaml" || lang === "yml" || lang === "json";
+  });
+
+  // If we found code blocks but none are YAML/JSON, return the first one
+  // so parseSchema can throw a proper "unsupported language" error
+  if (!schemaBlock && blocks[0]) {
+    return {
+      lang: blocks[0].lang,
+      code: blocks[0].code,
+    };
+  }
+
+  if (!schemaBlock) return null;
+
   return {
-    lang,
-    code: code.trim(),
+    lang: schemaBlock.lang,
+    code: schemaBlock.code,
   };
 }
 

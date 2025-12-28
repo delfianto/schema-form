@@ -3,15 +3,17 @@ import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import * as Log from "../utils/logger";
 import { wrapWithErrorBoundary } from "./ErrorBoundary";
 import type { FormState } from "./FormState";
-import { RendererRegistry } from "./RendererRegistry";
+import { defaultRegistry, type RendererRegistry } from "./RendererRegistry";
 import type { FieldRendererStrategy } from "./renderers/types";
 
 export class FormRenderer {
   private state: FormState;
+  private registry: RendererRegistry;
   private elements: Map<string, HTMLElement> = new Map();
 
-  constructor(formState: FormState) {
+  constructor(formState: FormState, registry: RendererRegistry = defaultRegistry) {
     this.state = formState;
+    this.registry = registry;
   }
 
   renderSchema(container: HTMLElement, schema: Schema): void {
@@ -45,7 +47,7 @@ export class FormRenderer {
   }
 
   private getStrategy(type: string): FieldRendererStrategy<Field> {
-    return RendererRegistry.getStrategy(type);
+    return this.registry.getStrategy(type);
   }
 
   getFieldElement(fieldName: string): HTMLElement | undefined {
