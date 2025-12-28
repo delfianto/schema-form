@@ -1,4 +1,6 @@
 import { type App, PluginSettingTab, Setting, SuggestModal, TFolder } from "obsidian";
+import { LocaleRegistry } from "../i18n/LocaleRegistry";
+import type { SupportedLocale } from "../i18n/types";
 import type SchemaFormPlugin from "../main";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";
 import { addDebugSection } from "./DebugSettingsUI";
@@ -18,6 +20,7 @@ export class SchemaFormSettingTab extends PluginSettingTab {
     container.createEl("h2", { text: "Schema Form Settings" });
 
     this.addDebugToggle(container);
+    this.addLocalePicker(container);
     this.addSchemaDirPicker(container);
 
     if (this.plugin.settings.debugFlag) {
@@ -35,6 +38,34 @@ export class SchemaFormSettingTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         }),
       );
+  }
+
+  private addLocalePicker(container: HTMLElement): void {
+    new Setting(container)
+      .setName("Language / Locale")
+      .setDesc("Language for form labels and error messages")
+      .addDropdown((dropdown) => {
+        // Add auto-detect option
+        dropdown.addOption("auto", "🌐 Auto-detect from Obsidian");
+
+        // Add all registered locales
+        LocaleRegistry.getAll().forEach((config) => {
+          dropdown.addOption(config.code, `${config.nativeName} (${config.name})`);
+        });
+
+        dropdown
+          .setValue(this.plugin.settings.autoDetectLocale ? "auto" : this.plugin.settings.locale)
+          .onChange(async (value) => {
+            if (value === "auto") {
+              this.plugin.settings.autoDetectLocale = true;
+              this.plugin.detectAndSetLocale();
+            } else {
+              this.plugin.settings.autoDetectLocale = false;
+              this.plugin.settings.locale = value as SupportedLocale;
+            }
+            await this.plugin.saveSettings();
+          });
+      });
   }
 
   private addSchemaDirPicker(container: HTMLElement): void {

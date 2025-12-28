@@ -1,15 +1,20 @@
 import { z } from "zod";
+import { getErrorMessages } from "../../i18n/messages";
+import type { SupportedLocale } from "../../i18n/types";
 import { makeOptional, makeRequired } from "./optionalSchema";
 
 export class ValidatorBuilder {
   private schema: z.ZodTypeAny;
+  private locale: SupportedLocale;
 
-  constructor(baseSchema: z.ZodTypeAny = z.string()) {
+  constructor(baseSchema: z.ZodTypeAny = z.string(), locale: SupportedLocale = "en") {
     this.schema = baseSchema;
+    this.locale = locale;
   }
 
-  required(message = "This field is required"): this {
-    this.schema = makeRequired(this.schema, message);
+  required(message?: string): this {
+    const messages = getErrorMessages(this.locale);
+    this.schema = makeRequired(this.schema, message ?? messages.required);
     return this;
   }
 
@@ -20,21 +25,40 @@ export class ValidatorBuilder {
 
   minLength(length: number, message?: string): this {
     if (this.schema instanceof z.ZodString) {
-      this.schema = this.schema.min(length, message ?? `Minimum length is ${length}`);
+      const messages = getErrorMessages(this.locale);
+      this.schema = this.schema.min(length, message ?? messages.minLength(length));
     }
     return this;
   }
 
   maxLength(length: number, message?: string): this {
     if (this.schema instanceof z.ZodString) {
-      this.schema = this.schema.max(length, message ?? `Maximum length is ${length}`);
+      const messages = getErrorMessages(this.locale);
+      this.schema = this.schema.max(length, message ?? messages.maxLength(length));
     }
     return this;
   }
 
-  pattern(regex: RegExp, message = "Invalid format"): this {
+  minValue(min: number, message?: string): this {
+    if (this.schema instanceof z.ZodNumber) {
+      const messages = getErrorMessages(this.locale);
+      this.schema = this.schema.min(min, message ?? messages.minValue(min));
+    }
+    return this;
+  }
+
+  maxValue(max: number, message?: string): this {
+    if (this.schema instanceof z.ZodNumber) {
+      const messages = getErrorMessages(this.locale);
+      this.schema = this.schema.max(max, message ?? messages.maxValue(max));
+    }
+    return this;
+  }
+
+  pattern(regex: RegExp, message?: string): this {
     if (this.schema instanceof z.ZodString) {
-      this.schema = this.schema.regex(regex, message);
+      const messages = getErrorMessages(this.locale);
+      this.schema = this.schema.regex(regex, message ?? messages.pattern);
     }
     return this;
   }

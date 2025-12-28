@@ -27,7 +27,9 @@ describe("Logger Module", () => {
     test("should set initial settings", () => {
       const settings: SchemaFormSettings = {
         debugFlag: true,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       };
       initialize(settings);
       expect(isDebugEnabled()).toBe(true);
@@ -36,7 +38,9 @@ describe("Logger Module", () => {
     test("should enable debug when debugFlag is true", () => {
       initialize({
         debugFlag: true,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       });
       expect(isDebugEnabled()).toBe(true);
     });
@@ -44,7 +48,9 @@ describe("Logger Module", () => {
     test("should disable debug when debugFlag is false", () => {
       initialize({
         debugFlag: false,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       });
       expect(isDebugEnabled()).toBe(false);
     });
@@ -54,13 +60,17 @@ describe("Logger Module", () => {
     test("should update existing settings", () => {
       initialize({
         debugFlag: false,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       });
       expect(isDebugEnabled()).toBe(false);
 
       updateSettings({
         debugFlag: true,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       });
       expect(isDebugEnabled()).toBe(true);
     });
@@ -70,7 +80,9 @@ describe("Logger Module", () => {
     test("should return false when debugFlag is false", () => {
       initialize({
         debugFlag: false,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       });
       expect(isDebugEnabled()).toBe(false);
     });
@@ -78,14 +90,17 @@ describe("Logger Module", () => {
     test("should return true when debugFlag is true", () => {
       initialize({
         debugFlag: true,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       });
       expect(isDebugEnabled()).toBe(true);
     });
 
     test("should handle malformed data gracefully", () => {
       initialize({
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
       } as any);
       expect(isDebugEnabled()).toBe(false);
     });
@@ -95,7 +110,9 @@ describe("Logger Module", () => {
     beforeEach(() => {
       initialize({
         debugFlag: false,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       });
     });
 
@@ -122,7 +139,9 @@ describe("Logger Module", () => {
     test("debug should log when debug is enabled", () => {
       updateSettings({
         debugFlag: true,
-        schemaDir: "test/schemas"
+        schemaDir: "test/schemas",
+        locale: "en",
+        autoDetectLocale: false,
       });
       debug("debug message", "extra");
       expect(consoleMocks.debug).toHaveBeenCalledWith("🤖", "debug message", "extra");

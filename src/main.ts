@@ -10,11 +10,14 @@ import {
   TextFieldRenderer,
   ToggleFieldRenderer,
 } from "./form/renderers";
+import type { SupportedLocale } from "./i18n/types";
+import { SchemaLoader } from "./schema/SchemaLoader";
 import * as Settings from "./settings";
 import * as Log from "./utils/logger";
 
 export default class SchemaFormPlugin extends Plugin {
   settings!: Settings.SchemaFormSettings;
+  schemaLoader!: SchemaLoader;
   private _formData: Record<string, unknown> = {};
   private _labelData: Record<string, string> = {};
   isApiExposed: boolean = false;
@@ -42,6 +45,14 @@ export default class SchemaFormPlugin extends Plugin {
 
     Log.initialize(this.settings);
     Log.debug("Settings loaded: ", this.settings);
+
+    // Auto-detect locale if enabled
+    if (this.settings.autoDetectLocale) {
+      this.detectAndSetLocale();
+    }
+
+    // Initialize schema loader with current locale
+    this.schemaLoader = new SchemaLoader(this.app, this.settings.schemaDir, this.settings.locale);
 
     this.registerRenderers();
 
@@ -76,5 +87,42 @@ export default class SchemaFormPlugin extends Plugin {
 
   async saveSettings() {
     await Settings.save(this);
+
+    // Recreate schema loader when locale changes
+    this.schemaLoader = new SchemaLoader(this.app, this.settings.schemaDir, this.settings.locale);
+  }
+
+  /**
+   * Detect and set locale from Obsidian
+   */
+  detectAndSetLocale(): void {
+    const obsidianLocale = (this.app as any).getLocale?.() as string | undefined;
+
+    if (obsidianLocale) {
+      this.settings.locale = this.mapObsidianToSupportedLocale(obsidianLocale);
+    }
+  }
+
+  /**
+   * Map Obsidian locale code to supported locale
+   */
+  private mapObsidianToSupportedLocale(obsidianLocale: string): SupportedLocale {
+    // Extract base language code
+    const base = obsidianLocale.split("-")[0]?.toLowerCase() ?? "en";
+
+    // Map to supported locales
+    const localeMap: Record<string, SupportedLocale> = {
+      en: "en",
+      id: "id",
+      ja: "ja",
+      zh: "zh",
+      ko: "ko",
+      es: "es",
+      fr: "fr",
+      de: "de",
+      pt: "pt-BR",
+    };
+
+    return localeMap[base] ?? "en";
   }
 }

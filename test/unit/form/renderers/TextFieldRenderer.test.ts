@@ -49,7 +49,7 @@ describe("TextFieldRenderer", () => {
         minLength: 5,
       });
 
-      expect(validator("abc")).toContain("Minimum length is 5");
+      expect(validator("abc")).toContain("Minimum length is 5 characters");
       expect(validator("abcde")).toEqual([]);
       expect(validator("abcdef")).toEqual([]);
     });
@@ -62,7 +62,7 @@ describe("TextFieldRenderer", () => {
         maxLength: 10,
       });
 
-      expect(validator("12345678901")).toContain("Maximum length is 10");
+      expect(validator("12345678901")).toContain("Maximum length is 10 characters");
       expect(validator("1234567890")).toEqual([]);
       expect(validator("123")).toEqual([]);
     });
@@ -101,8 +101,8 @@ describe("TextFieldRenderer", () => {
       });
 
       expect(validator("")).toContain("This field is required");
-      expect(validator("ab")).toContain("Minimum length is 3");
-      expect(validator("123456789012345678901")).toContain("Maximum length is 20");
+      expect(validator("ab")).toContain("Minimum length is 3 characters");
+      expect(validator("123456789012345678901")).toContain("Maximum length is 20 characters");
       expect(validator("validuser")).toEqual([]);
     });
   });

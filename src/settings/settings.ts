@@ -1,14 +1,19 @@
+import type { SupportedLocale } from "../i18n/types";
 import type SchemaFormPlugin from "../main";
-
-const DEFAULT_SETTINGS: SchemaFormSettings = {
-  schemaDir: "",
-  debugFlag: false,
-};
 
 export interface SchemaFormSettings {
   schemaDir: string;
   debugFlag: boolean;
+  locale: SupportedLocale;
+  autoDetectLocale: boolean;
 }
+
+export const DEFAULT_SETTINGS: SchemaFormSettings = {
+  schemaDir: "",
+  debugFlag: false,
+  locale: "en",
+  autoDetectLocale: true,
+};
 
 export async function load(plugin: SchemaFormPlugin): Promise<SchemaFormSettings> {
   return Object.assign({}, DEFAULT_SETTINGS, await plugin.loadData());
