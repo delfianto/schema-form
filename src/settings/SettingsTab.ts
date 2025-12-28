@@ -1,5 +1,5 @@
 import { type App, PluginSettingTab, Setting, SuggestModal, TFolder } from "obsidian";
-import { LocaleRegistry } from "../i18n/LocaleRegistry";
+import * as LocaleRegistry from "../i18n/LocaleRegistry";
 import type { SupportedLocale } from "../i18n/types";
 import type SchemaFormPlugin from "../main";
 import { cssClass, SCHEMA_FORM_STYLE } from "../style";

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { LocaleRegistry } from "../../../src/i18n/LocaleRegistry";
+import * as LocaleRegistry from "../../../src/i18n/LocaleRegistry";
 
 describe("LocaleRegistry", () => {
 	test("should get locale config by code", () => {

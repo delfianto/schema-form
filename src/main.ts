@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { type App, Plugin } from "obsidian";
 import { registerApi, unregisterApi } from "./api";
 import { defaultRegistry } from "./form/RendererRegistry";
 import {
@@ -14,6 +14,10 @@ import type { SupportedLocale } from "./i18n/types";
 import { SchemaLoader } from "./schema/SchemaLoader";
 import * as Settings from "./settings";
 import * as Log from "./utils/logger";
+
+interface AppWithLocale extends App {
+  getLocale?(): string;
+}
 
 export default class SchemaFormPlugin extends Plugin {
   settings!: Settings.SchemaFormSettings;
@@ -96,7 +100,7 @@ export default class SchemaFormPlugin extends Plugin {
    * Detect and set locale from Obsidian
    */
   detectAndSetLocale(): void {
-    const obsidianLocale = (this.app as any).getLocale?.() as string | undefined;
+    const obsidianLocale = (this.app as AppWithLocale).getLocale?.() as string | undefined;
 
     if (obsidianLocale) {
       this.settings.locale = this.mapObsidianToSupportedLocale(obsidianLocale);
