@@ -276,7 +276,9 @@ fields:
 			});
 
 			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(SchemaError);
-			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(/type: (Invalid input|Required)/);
+			await expect(loadSchema(mockApp, mockFile)).rejects.toThrow(
+				/type: (Invalid input|Required|Invalid discriminator value)/,
+			);
 		});
 
 		test("should throw SchemaError for invalid label type", async () => {
