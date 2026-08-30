@@ -20,7 +20,7 @@ interface AppWithLocale extends App {
 }
 
 export default class SchemaFormPlugin extends Plugin {
-  settings!: Settings.SchemaFormSettings;
+  declare settings: Settings.SchemaFormSettings;
   schemaLoader!: SchemaLoader;
   private _formData: Record<string, unknown> = {};
   private _labelData: Record<string, string> = {};
