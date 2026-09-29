@@ -9,12 +9,12 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist",
     "lib": ["DOM", "ESNext"],
-    "baseUrl": ".",
+    "types": ["bun"],
     "paths": {
-      "@/*": ["src/*"],
-      "@form/*": ["src/form/*"],
-      "@schema/*": ["src/schema/*"],
-      "@utils/*": ["src/utils/*"]
+      "@/*": ["./src/*"],
+      "@form/*": ["./src/form/*"],
+      "@schema/*": ["./src/schema/*"],
+      "@utils/*": ["./src/utils/*"]
     },
     "noUnusedLocals": true,
     "noUnusedParameters": true,
