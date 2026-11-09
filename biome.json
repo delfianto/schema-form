@@ -1,55 +1,55 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.6.5/schema.json",
-	"files": {
-		"includes": [
-			"src/**/*.ts",
-			"src/**/*.js",
-			"src/**/*.mjs",
-			"src/**/*.json",
-			"!**/node_modules",
-			"!**/main.js",
-			"!**/*.d.ts"
-		],
-		"ignoreUnknown": false
-	},
-	"vcs": {
-		"enabled": true,
-		"clientKind": "git",
-		"useIgnoreFile": true
-	},
-	"formatter": {
-		"enabled": true,
-		"formatWithErrors": false,
-		"indentStyle": "space",
-		"indentWidth": 2,
-		"lineWidth": 100
-	},
-	"assist": { "actions": { "source": { "organizeImports": "on" } } },
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"preset": "recommended",
-			"correctness": {
-				"noUnusedImports": "error",
-				"noUnusedVariables": "error"
-			},
-			"style": {
-				"useImportType": "error",
-				"useConsistentArrayType": "error"
-			},
-			"complexity": {
-				"useLiteralKeys": "off"
-			},
-			"nursery": {
-				"useTailwindSortedClasses": "error"
-			}
-		}
-	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double",
-			"semicolons": "always",
-			"trailingCommas": "all"
-		}
-	}
+  "$schema": "https://biomejs.dev/schemas/2.6.6/schema.json",
+  "files": {
+    "includes": [
+      "src/**/*.ts",
+      "src/**/*.js",
+      "src/**/*.mjs",
+      "src/**/*.json",
+      "!**/node_modules",
+      "!**/main.js",
+      "!**/*.d.ts"
+    ],
+    "ignoreUnknown": false
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "enabled": true,
+    "formatWithErrors": false,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      },
+      "style": {
+        "useImportType": "error",
+        "useConsistentArrayType": "error"
+      },
+      "complexity": {
+        "useLiteralKeys": "off"
+      },
+      "nursery": {
+        "useTailwindSortedClasses": "error"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  }
 }
